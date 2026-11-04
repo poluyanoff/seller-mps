@@ -1,0 +1,21 @@
+{
+  "name": "seller-prototype",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "build": "node scripts/dev.mjs --build",
+    "library:check": "node scripts/library-check.mjs"
+  },
+  "dependencies": {
+    "taiga-ui-proprietary": "file:vendor/taiga-ui-proprietary-2.60.3.tgz",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
