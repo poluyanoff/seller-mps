@@ -115,7 +115,7 @@ function StickyFilters({ children }) {
     return () => { window.removeEventListener('scroll', onScroll); if (frame) cancelAnimationFrame(frame); };
   }, []);
   return h(React.Fragment, null,
-    h('div', { ref: bar, style: { marginBottom: 20 } }, h(FiltersRow, null, children)),
+    h('div', { ref: bar, style: { maxWidth: 1104, margin: '0 auto 20px', padding: '0 32px', boxSizing: 'content-box' } }, h(FiltersRow, null, children)),
     h('div', { className: 'proto-fixedbar', 'data-open': open ? '' : undefined, inert: open ? undefined : '',
       'aria-hidden': open ? undefined : 'true' },
       h('div', { className: 'proto-fixedbar__in' }, h(FiltersRow, null, children))));
