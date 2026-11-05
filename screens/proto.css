@@ -1,0 +1,66 @@
+/* Воронка подключения: колонка 528 вместо 720.
+   Аппбар («Назад» слева, «Закрыть» справа) и контент встают в одни края. */
+.proto-funnel .tui-dlg__bar-in,
+.proto-funnel .tui-dlg__col,
+.proto-funnel .tui-dlg__dock-in {
+  width: 528px;
+}
+
+/* Появление и закрытие — как у BottomSheet (Web): выезд снизу 350 мс, закрытие 300 мс,
+   подложка service-backdrop меняется вместе с движением. В гайде полноэкранного диалога подложки нет,
+   поэтому слой подложки добавлен здесь, под экраном. */
+.tui-dlg.proto-funnel.tui-dlg--full {
+  background: transparent;
+}
+.proto-funnel.tui-dlg--full::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: var(--tui-service-backdrop);
+  animation: tui-dlg-fade 350ms cubic-bezier(0.1, 0.8, 0.5, 1) both;
+}
+.proto-funnel .tui-dlg__screen {
+  position: relative;
+  z-index: 1;
+  animation: tui-dlg-push 350ms cubic-bezier(0.1, 0.8, 0.5, 1) backwards;
+}
+.proto-funnel.tui-dlg--out::before {
+  animation: tui-dlg-fade-out var(--duration-moderate, 300ms) var(--easing-expressive-exit, ease-in) both;
+}
+.proto-funnel.tui-dlg--out .tui-dlg__screen {
+  animation: tui-dlg-pop var(--duration-moderate, 300ms) var(--easing-expressive-exit, ease-in) both;
+}
+
+/* Переход между шагами (лендинг ↔ описание инструмента ↔ оформление).
+   Штатный step у Dialog играет шаги параллельно в одной ячейке и растягивает контейнер на высоту
+   уходящего шага. Здесь: уходящий шаг выведен из потока и стоит там, где его видел пользователь
+   (--proto-from — прокрутка в момент перехода); steps обрезает его по своей рамке.
+   Тайминги: уходящий 100 мс ease-in, новый стартует через 80 мс и едет 240 мс ease-out —
+   к 300 мс, когда Dialog убирает класс шага, новый уже на 99,9% пути. */
+.proto-funnel .tui-dlg__steps {
+  position: relative;
+  overflow: clip;
+}
+.proto-funnel .tui-dlg__col--out {
+  position: absolute;
+  top: calc(-1 * var(--proto-from, 0px));
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  animation: tui-dlg-step-out 100ms cubic-bezier(0.55, 0, 1, 0.45) both;
+}
+.proto-funnel .tui-dlg__col--out.tui-dlg__col--back {
+  animation-name: tui-dlg-step-out-back;
+}
+.proto-funnel .tui-dlg__col--in {
+  animation: tui-dlg-step-in 240ms cubic-bezier(0.165, 0.84, 0.44, 1) 80ms both;
+}
+.proto-funnel .tui-dlg__col--in.tui-dlg__col--back {
+  animation-name: tui-dlg-step-in-back;
+}
+@media (prefers-reduced-motion: reduce) {
+  .proto-funnel .tui-dlg__col--out,
+  .proto-funnel .tui-dlg__col--in {
+    animation: none;
+  }
+}

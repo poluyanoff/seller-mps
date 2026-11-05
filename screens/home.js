@@ -1,5 +1,6 @@
 import { React, T } from './runtime.js';
-import { CHART, DAYS, PRODUCTS_BEST, PRODUCTS_WORST } from './data.js';
+import './home.css';
+import { CHART, DAYS, PRODUCTS_BEST, PRODUCTS_WORST, PRODUCTS_BEST_REV, PRODUCTS_WORST_REV, ABC_REVENUE } from './data.js';
 import promoBg from '../assets/home/promo-bg.png';
 import collage from '../assets/home/collage.png';
 
@@ -23,27 +24,49 @@ function Metric({ value, label, labelRest, sub, delta, tone, hint = true, gap = 
     delta && h('div', { style: { display: 'flex' } }, h(Delta, { text: delta, tone })));
 }
 
-/* Столбчатый график недели: три слоя цвета акцента, как в макете */
+/* Один раз при появлении: true, когда блок виден на 40%. При reduced-motion — сразу true. */
+function useReveal(threshold = 0.4) {
+  const ref = React.useRef(null);
+  const [on, setOn] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current;
+    const reduce = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!el || reduce || typeof IntersectionObserver !== 'function') { setOn(true); return undefined; }
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setOn(true); io.disconnect(); }
+    }, { threshold });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+  return [ref, on];
+}
+
+/* Столбчатый график недели: три слоя цвета акцента, как в макете.
+   Появление — столбцы вырастают снизу со сдвигом 40 мс. */
 function Bars() {
+  const [ref, on] = useReveal(0.35);
   const axis = { width: 45, textAlign: 'right', color: 'var(--tui-text-tertiary)' };
-  return h('div', { style: { position: 'relative', height: 229 } },
+  return h('div', { ref, style: { position: 'relative', height: 229 } },
     h('div', { style: { position: 'absolute', inset: '0 0 24px 0', display: 'flex', flexDirection: 'column', gap: 12 } },
       ['60\u00a0000\u00a0₽', '40\u00a0000\u00a0₽', '20\u00a0000\u00a0₽', '0\u00a0₽'].map((t, i) => h('div', { key: t, style: { flex: 1, display: 'flex', alignItems: i === 3 ? 'flex-end' : 'center', gap: 12 } },
         h('div', { style: { flex: 1, borderTop: (i === 3 ? '1px solid' : '1px dashed') + ' var(--tui-border-normal)' } }),
         h('span', { className: 'tui-body-xs', style: axis }, t)))),
     h('div', { style: { position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', gap: 20, paddingRight: 57 } },
       CHART.map((v, i) => h('div', { key: i, style: { flex: '1 1 0', maxWidth: 36, minWidth: 1, height: v, display: 'flex', flexDirection: 'column', gap: 4 } },
-        h('div', { style: { flex: 1, position: 'relative' } },
-          h('div', { style: { position: 'absolute', inset: 0, borderRadius: 8, background: 'var(--tui-background-accent-2)', opacity: 0.25 } }),
-          h('div', { style: { position: 'absolute', inset: '33.33% 0 0 0', borderRadius: '0 0 8px 8px', background: 'var(--tui-background-accent-2)', opacity: 0.5 } }),
-          h('div', { style: { position: 'absolute', inset: '67.32% 0 0 0', borderRadius: '0 0 8px 8px', background: 'var(--tui-background-accent-2)' } })),
+        h('div', { style: { flex: 1, position: 'relative', overflow: 'hidden', borderRadius: 8 } },
+          h('div', { className: on ? 'proto-grow is-on' : 'proto-grow', style: { position: 'absolute', inset: 0, transitionDelay: (i * 40) + 'ms' } },
+            h('div', { style: { position: 'absolute', inset: 0, borderRadius: 8, background: 'var(--tui-background-accent-2)', opacity: 0.25 } }),
+            h('div', { style: { position: 'absolute', inset: '33.33% 0 0 0', borderRadius: '0 0 8px 8px', background: 'var(--tui-background-accent-2)', opacity: 0.5 } }),
+            h('div', { style: { position: 'absolute', inset: '67.32% 0 0 0', borderRadius: '0 0 8px 8px', background: 'var(--tui-background-accent-2)' } }))),
         h('span', { className: 'tui-body-xs', style: { height: 20, textAlign: 'center', color: 'var(--tui-text-tertiary)' } }, DAYS[i])))));
 }
 
-/* Кольцо (арка 270°, 170): value 0..1 */
+/* Кольцо (арка 270°, 170): value 0..1. Заполняется с нуля при появлении в кадре. */
 function Ring({ value, color, big, label, delta, tone }) {
-  return h('div', { style: { position: 'relative', width: 170, height: 170, margin: '20px auto 0' } },
-    h(T.ProgressCircle, { value, max: 1, size: 128, thickness: 8, open: true, color, content: 'none', style: { transform: 'scale(1.328)', transformOrigin: 'center' } }),
+  const [ref, on] = useReveal(0.3);
+  return h('div', { ref, style: { position: 'relative', width: 170, height: 170, margin: '20px auto 0' } },
+    h(T.ProgressCircle, { value: on ? value : 0.0001, max: 1, size: 128, thickness: 8, open: true, color, content: 'none', className: 'proto-ring',
+      style: { position: 'absolute', left: 21, top: 21, transform: 'scale(1.328)', transformOrigin: 'center' } }),
     h('div', { style: { position: 'absolute', left: 0, right: 0, top: 44, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 } },
       h('div', { style: { textAlign: 'center' } },
         h('div', { className: 'tui-heading-6' }, big),
@@ -51,8 +74,51 @@ function Ring({ value, color, big, label, delta, tone }) {
       h(Delta, { text: delta, tone })));
 }
 
-function Seg({ items }) {
-  return h(T.Segmented, { items, size: 's', shape: 'rounded', defaultIndex: 0 });
+function Seg({ items, value, onChange }) {
+  return h('div', { onClick: e => e.stopPropagation(), style: { display: 'inline-block', cursor: 'default' } },
+    h(T.Segmented, { items, size: 's', shape: 'rounded', activeIndex: value, onChange }));
+}
+
+/* Статичные фильтры страницы плюс их копия в фикс-хедере.
+   Хедер выезжает сверху только при скролле вверх, когда фильтры уже ушли за верх экрана:
+   показ после +160 px, скрытие после возврата к +80 px (гистерезис против мигания).
+   Появление и уход — CSS-переход по data-open: анимируются только transform и opacity,
+   реверс посреди анимации отрабатывает плавно. */
+const FIXED_SHOW = 160;
+const FIXED_HIDE = 80;
+
+function FiltersRow({ children }) {
+  return h('div', { style: { display: 'flex', gap: 4, alignItems: 'center' } }, children);
+}
+
+function StickyFilters({ children }) {
+  const bar = React.useRef(null);
+  const [open, setOpen] = React.useState(false);
+  React.useEffect(() => {
+    const el = bar.current;
+    let last = window.scrollY;
+    let shown = false;
+    let frame = 0;
+    const tick = () => {
+      frame = 0;
+      const y = window.scrollY;
+      const from = el ? el.getBoundingClientRect().top + y : 0;
+      const past = y - from;
+      const up = y < last - 2;
+      const down = y > last + 2;
+      last = y;
+      if (past > FIXED_SHOW && up && !shown) { shown = true; setOpen(true); }
+      else if ((past < FIXED_HIDE || (down && past < FIXED_SHOW)) && shown) { shown = false; setOpen(false); }
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(tick); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => { window.removeEventListener('scroll', onScroll); if (frame) cancelAnimationFrame(frame); };
+  }, []);
+  return h(React.Fragment, null,
+    h('div', { ref: bar, style: { marginBottom: 20 } }, h(FiltersRow, null, children)),
+    h('div', { className: 'proto-fixedbar', 'data-open': open ? '' : undefined, inert: open ? undefined : '',
+      'aria-hidden': open ? undefined : 'true' },
+      h('div', { className: 'proto-fixedbar__in' }, h(FiltersRow, null, children))));
 }
 
 function ProductRow({ p }) {
@@ -60,12 +126,63 @@ function ProductRow({ p }) {
     avatar: h(T.Avatar, { src: p.img, alt: '', size: 'medium', shape: 'square' }) });
 }
 
+/* Полоса долевого состава. Каждый сегмент — слой на всю ширину, сдвинутый и сжатый
+   через translateX + scaleX: меняется только transform, layout не пересчитывается.
+   При первом появлении доли вырастают со сдвигом 60 мс, при смене вкладки — плавно
+   перетекают из старых значений в новые за 260 мс. */
+function Share({ parts }) {
+  const [ref, on] = useReveal(0.3);
+  /* steady — после первого роста: дальше доли перетекают коротким переходом */
+  const [steady, setSteady] = React.useState(false);
+  React.useEffect(() => {
+    if (!on) return undefined;
+    const t = setTimeout(() => setSteady(true), 900);
+    return () => clearTimeout(t);
+  }, [on]);
+  let acc = 0;
+  const total = parts.reduce((s, p) => s + p.w, 0) || 1;
+  return h('div', { ref, className: 'proto-share', style: { height: 8, borderRadius: 6, overflow: 'hidden' } },
+    parts.map((p, i) => {
+      const start = acc / total * 100;
+      acc += p.w;
+      const width = p.w / total * 100;
+      return h('div', { key: 's' + i, className: 'proto-share__seg',
+        style: {
+          background: p.color,
+          transform: on ? `translateX(${start}%) scaleX(${width / 100})` : 'translateX(0) scaleX(0)',
+          transition: steady
+            ? 'transform 260ms cubic-bezier(0.4, 0, 0.2, 1)'
+            : `transform 600ms cubic-bezier(0.165, 0.84, 0.44, 1) ${on ? i * 60 : 0}ms`
+        } });
+    }));
+}
+
+const ABC_PROFIT = [
+  { w: 38, color: 'var(--tui-status-positive)', label: '80% прибыли', pcs: '30 шт', pct: '50%' },
+  { w: 14, color: 'var(--tui-categorical-05)', label: '15% прибыли', pcs: '12 шт', pct: '20%' },
+  { w: 48, color: 'var(--tui-status-negative)', label: '5% прибыли', pcs: '18 шт', pct: '30%' }
+];
+
+const REV_COLORS = ['var(--tui-status-positive)', 'var(--tui-categorical-05)', 'var(--tui-status-negative)'];
+
 function AbcRow({ color, label, pcs, pct }) {
   return h('div', { style: { display: 'flex', alignItems: 'center', height: 40 } },
     h('span', { style: { width: 20, display: 'flex', alignItems: 'center' } }, h('span', { style: { width: 8, height: 8, borderRadius: 4, background: color } })),
     h('span', { className: 'tui-ui-m', style: { flex: 1 } }, label),
     h('span', { className: 'tui-ui-m', style: { marginLeft: 16 } }, pcs),
     h('span', { className: 'tui-ui-m', style: { marginLeft: 16, width: 32, textAlign: 'right', color: 'var(--tui-text-secondary)' } }, pct));
+}
+
+/* ABC-анализ: вкладка «По прибыли» и фейк-данные «По выручке».
+   Внутри вкладки контент живёт в одном дереве, поэтому смена таба не ломает вложенный
+   OnboardingFlow у карточки; на первом появлении первый таб уже подставлен без анимации. */
+function AbcBody({ tab }) {
+  const rows = tab === 0
+    ? ABC_PROFIT
+    : ABC_REVENUE.map((r, i) => ({ w: r.w, color: REV_COLORS[i], label: r.label, pcs: r.pcs, pct: r.pct }));
+  return h('div', { style: { display: 'flex', flexDirection: 'column', gap: 12 } },
+    h(Share, { parts: rows }),
+    rows.map((r, i) => h(AbcRow, { key: 'r' + i, color: r.color, label: r.label, pcs: r.pcs, pct: r.pct })));
 }
 
 const tools = [
@@ -90,6 +207,8 @@ function Smile({ kind }) {
    open(ctx) — открыть лендинг; ctx подсказывает, с какого виджета пришли. */
 export function Home({ connected, open, toast }) {
   const go = ctx => () => open(ctx);
+  const [abcTab, setAbcTab] = React.useState(0);
+  const [ratingTab, setRatingTab] = React.useState(0);
   const nb = t => t.replace(/ /g, '\u00a0');
   const card = (props, ...kids) => h(T.CardLarge, Object.assign({ appearance: 'elevated', hover: '', platform: 'desktop' }, props), ...kids);
   const pad = (n, node) => h('div', { style: { paddingTop: n } }, node);
@@ -134,19 +253,13 @@ export function Home({ connected, open, toast }) {
               h(Metric, { value: ign('33 арт.'), label: 'К поставке', sub: nb('34 465 ₽') }))))), true)),
 
     clickable('abc', card({ key: 'abc', title: 'ABC\u2011анализ', ...nav },
-      h('div', { style: { display: 'flex', flexDirection: 'column', gap: 12 } },
-        h(Seg, { items: ['По прибыли', 'По выручке'] }),
-        h('div', { style: { display: 'flex', height: 8, borderRadius: 6, overflow: 'hidden' } },
-          h('div', { style: { flex: 38, background: 'var(--tui-status-positive)' } }), h('div', { style: { flex: 14, background: 'var(--tui-categorical-05)' } }), h('div', { style: { flex: 48, background: 'var(--tui-status-negative)' } })),
-        h(AbcRow, { color: 'var(--tui-status-positive)', label: '80% прибыли', pcs: '30 шт', pct: '50%' }),
-        h(AbcRow, { color: 'var(--tui-categorical-05)', label: '15% прибыли', pcs: '12 шт', pct: '20%' }),
-        h(AbcRow, { color: 'var(--tui-status-negative)', label: '5% прибыли', pcs: '18 шт', pct: '30%' })))),
+      h(React.Fragment, null, h(Seg, { items: ['По прибыли', 'По выручке'], value: abcTab, onChange: setAbcTab }), h(AbcBody, { tab: abcTab })))),
 
     clickable('rating', card({ key: 'rate', title: 'Рейтинг товаров', ...nav },
       h('div', { style: { display: 'flex', flexDirection: 'column', gap: 20 } },
-        h(Seg, { items: ['По прибыли', 'По выручке'] }),
-        h('div', null, h('div', { className: 'tui-ui-l-bold', style: { marginBottom: 8 } }, 'Продаются лучше'), PRODUCTS_BEST.map((p, i) => h(ProductRow, { key: i, p }))),
-        h('div', null, h('div', { className: 'tui-ui-l-bold', style: { marginBottom: 8 } }, 'Продаются хуже'), PRODUCTS_WORST.map((p, i) => h(ProductRow, { key: i, p })))))),
+        h(Seg, { items: ['По прибыли', 'По выручке'], value: ratingTab, onChange: setRatingTab }),
+        h('div', null, h('div', { className: 'tui-ui-l-bold', style: { marginBottom: 8 } }, 'Продаются лучше'), (ratingTab === 0 ? PRODUCTS_BEST : PRODUCTS_BEST_REV).map((p, i) => h(ProductRow, { key: ratingTab + '-' + i, p }))),
+        h('div', null, h('div', { className: 'tui-ui-l-bold', style: { marginBottom: 8 } }, 'Продаются хуже'), (ratingTab === 0 ? PRODUCTS_WORST : PRODUCTS_WORST_REV).map((p, i) => h(ProductRow, { key: ratingTab + '-' + i, p })))))),
 
     h('div', { key: 'more', style: { textAlign: 'center', padding: '8px 0 0' } },
       h('img', { src: collage, alt: '', style: { width: 672, maxWidth: '100%', display: 'block' } }),
@@ -163,22 +276,24 @@ export function Home({ connected, open, toast }) {
       h('div', { style: { display: 'flex', gap: 16 } }, [0, 1, 2].map(k => h(Smile, { key: k, kind: k }))))
   ];
 
-  return h(T.PageLayout, {
-    platform: 'desktop', layout: 'reversed', footer: false,
-    header: {
+  const filters = [
+    h(T.Chip, { key: 'wb', size: 'm', shape: 'rounded', dropdown: true }, 'Wildberries'),
+    h(T.Chip, { key: 'date', size: 'm', shape: 'rounded', icon: 'medium/calendar' }, nb('15 – 21 июня')),
+    h('span', { key: 'cmp', className: 'tui-body-m', style: { color: 'var(--tui-text-secondary)', paddingLeft: 8 } }, nb('По сравнению с 8 – 14 июня'))
+  ];
+
+  const header = h(React.Fragment, null,
+    h(T.PageHeader, {
       brand: 'business', size: 'l',
       products: [{ label: 'Селлер', active: true }, 'Кассы и эквайринг', 'Бухгалтерия', 'Интернет-эквайринг', { label: 'Все сервисы', dropdown: true }],
       sections: false, search: true, user: { name: 'Зеленоглазое такси' },
       title: 'Тестовый магазин',
       header: { titleSuffix: h(T.Icon, { name: 'medium-pragmatic/chevron-down', size: 24 }),
         accessory: connected
-          ? h(T.Badge, { appearance: 'positive-pale', size: 'x-large', icon: 'small-pragmatic/check' }, 'mpstats подключен')
-          : h(T.Badge, { appearance: 'neutral-pale', size: 'x-large' }, 'mpstats не подключен') },
-      children: h('div', { style: { display: 'flex', gap: 4, alignItems: 'center' } },
-        h(T.Chip, { size: 'm', shape: 'rounded', dropdown: true }, 'Wildberries'),
-        h(T.Chip, { size: 'm', shape: 'rounded', icon: 'medium/calendar' }, nb('15 – 21 июня')),
-        h('span', { className: 'tui-body-m', style: { color: 'var(--tui-text-secondary)', paddingLeft: 8 } }, nb('По сравнению с 8 – 14 июня')))
-    },
-    main, aside
-  });
+          ? h(T.Badge, { appearance: 'positive-pale', size: 'x-large', dot: true }, 'mpstats подключен')
+          : h(T.Badge, { appearance: 'neutral-pale', size: 'x-large', dot: true }, 'mpstats не подключен') }
+    }),
+    h(StickyFilters, null, filters));
+
+  return h(T.PageLayout, { platform: 'desktop', layout: 'reversed', footer: false, header, main, aside });
 }

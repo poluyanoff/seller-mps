@@ -31,6 +31,11 @@ function Group({ group, onOpen }) {
   return h(T.CardLarge, { appearance: 'elevated', hover: '', title: group.title, subtitle: group.subtitle }, h('div', { style: grid }, tiles));
 }
 
+/* Логотип MPSTATS из макета (белый знак на зелёном аватаре) */
+const partnerIcon = h('svg', { width: 24, height: 24, viewBox: '0 0 24 24', fill: 'none' },
+  h('path', { d: 'M18.6339 14.8764L6.90323 21.4658C6.4242 21.7356 5.84071 21.3778 5.84071 20.8162V7.6428C5.84071 7.08132 6.42411 6.72625 6.90323 6.99321C7.13341 7.12255 7.2779 7.373 7.2779 7.6428V15.2369C7.2779 15.7984 7.86406 16.1562 8.34319 15.8838L15.1626 12.0193C15.3768 11.8981 15.639 11.8981 15.8531 12.0165L18.6312 13.5744C19.1343 13.8607 19.1343 14.5983 18.6338 14.8763L18.6339 14.8764Z', fill: '#fff' }),
+  h('path', { d: 'M17.5975 7.5873C18.0634 7.8767 18.0634 8.58351 17.5975 8.87281L14.0299 11.0932L13.9717 11.1294L9.67364 13.8061C9.19995 14.1011 8.60177 13.7421 8.60177 13.1634V3.29684C8.60177 2.71812 9.19995 2.35913 9.67364 2.6541L17.5975 7.5873Z', fill: '#fff' }));
+
 const tabs = ['Аудит карточки', 'Поиск ниши', 'Ответы на отзывы', 'Создание фото'];
 
 function Automation() {
@@ -48,13 +53,13 @@ function Stat({ title, subtitle }) {
 }
 
 /* Лендинг подписки. ctx — ключ контекста с главной; без него — общий заголовок.
-   Назад показываем только когда пришли с главной (onBack), Закрыть — всегда. */
-export function Landing({ ctx, onBack, onClose, onOpenTool, onConnect }) {
+   Кнопки «Назад» нет, только «Закрыть». */
+export function Landing({ ctx, onOpenTool, onConnect }) {
   const context = ctx && CONTEXT[ctx];
   const title = context ? context.title : 'Рост продаж на маркетплейсах';
   const subtitle = context ? context.text : 'С подпиской MPSTATS × Т-Бизнес';
-  return h(T.Dialog, { open: true, fullscreen: true, closePosition: 'right', dismissible: false, onBack, onClose },
-    h('div', { style: { width: 528, maxWidth: '100%', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 24 } },
+  return (
+    h('div', { style: { width: '100%', display: 'flex', flexDirection: 'column', gap: 24 } },
       h('div', { style: { textAlign: 'center' } },
         h('div', { style: { position: 'relative', width: 528, maxWidth: '100%', height: 280, overflow: 'hidden', margin: '0 auto' } },
           h('img', { src: hero, alt: '', style: { position: 'absolute', top: 0, left: '19.62%', width: '84.85%', height: '100%', maxWidth: 'none' } })),
@@ -62,16 +67,16 @@ export function Landing({ ctx, onBack, onClose, onOpenTool, onConnect }) {
         h('p', { className: 'tui-body-m', style: { margin: 0 } }, subtitle)),
 
       h(T.CardLarge, { appearance: 'elevated', hover: '' },
-        h(T.Cell, { title: '14 дней бесплатно и 50% скидка на первый месяц', avatar: 'medium/percent', avatarBackground: 'tui-status-positive-pale', avatarColor: 'tui-status-positive' })),
+        h(T.Cell, { title: '14 дней бесплатно и 50% скидка на первый месяц', avatar: h(T.Avatar, { icon: 'medium/percent', shape: 'square', background: 'tui-status-positive-pale', color: 'tui-status-positive' }) })),
 
       h(T.CardLarge, { appearance: 'elevated', hover: '', title: 'Понимаем проблемы селлеров', subtitle: 'И уже более 6 лет помогаем решать их' },
-        h(T.Cell, { title: 'Продажи и конверсии падают', avatar: 'medium/chart-bar-decrease', avatarTone: 'neutral' }),
-        h(T.Cell, { title: 'Конкуренты растут и действуют непрозрачно', avatar: 'medium/eye-off', avatarTone: 'neutral' }),
-        h(T.Cell, { title: 'Реклама сжигает бюджеты', avatar: 'medium/flash', avatarTone: 'neutral' }),
-        h(T.Cell, { title: 'Рутина отнимает время команды', avatar: 'medium/clock', avatarTone: 'neutral' })),
+        h(T.Cell, { title: 'Продажи и конверсии падают', avatar: h(T.Avatar, { icon: 'medium/chart-bar-decrease', shape: 'square', tone: 'neutral' }) }),
+        h(T.Cell, { title: 'Конкуренты растут и действуют непрозрачно', avatar: h(T.Avatar, { icon: 'medium/eye-off', shape: 'square', tone: 'neutral' }) }),
+        h(T.Cell, { title: 'Реклама сжигает бюджеты', avatar: h(T.Avatar, { icon: 'medium/flash', shape: 'square', tone: 'neutral' }) }),
+        h(T.Cell, { title: 'Рутина отнимает время команды', avatar: h(T.Avatar, { icon: 'medium/clock', shape: 'square', tone: 'neutral' }) })),
 
       h(T.CardLarge, { appearance: 'elevated', hover: '', title: 'Более 200 инструментов для роста продаж', subtitle: 'Под любой запрос',
-        accessory: h(T.Avatar, { icon: 'medium/chart-bar-grow', tone: 'accent-2' }) }),
+        accessory: h(T.Avatar, { icon: 'medium/chart-bar-grow', shape: 'square', tone: 'accent-2' }) }),
 
       TOOL_GROUPS.map(g => h(Group, { key: g.title, group: g, onOpen: onOpenTool })),
       h(Automation),
@@ -79,15 +84,15 @@ export function Landing({ ctx, onBack, onClose, onOpenTool, onConnect }) {
       h(T.CardLarge, { appearance: 'elevated', hover: '',
         title: h(React.Fragment, null, h('span', { className: 'tui-caps-s-bold', style: { display: 'block', color: 'var(--tui-text-secondary)', marginBottom: 4 } }, 'О партнере'), 'MPSTATS'),
         subtitle: 'Бизнес-экосистема для селлеров на маркетплейсах',
-        accessory: h(T.Avatar, { size: 'medium', icon: 'medium/chart-bar-grow' }) },
+        accessory: h(T.Avatar, { size: 'small', icon: partnerIcon, background: '#62d13d' }) },
         h('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
           h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } },
             h(Stat, { title: '500 000 селлеров', subtitle: 'уже прошли регистрацию' }),
             h(Stat, { title: '6 лет опыта', subtitle: 'в аналитике маркетплейсов' }),
             h(Stat, { title: '3 миллиона отчетов', subtitle: 'в сутки генерирует сервис' }),
             h(Stat, { title: '95%', subtitle: 'точность данных' })),
-          h(T.NotificationBanner, { appearance: 'info', size: 'l', onClose: false, text: 'Сертифицированный партнер Wildberries' }))),
+          h(T.NotificationBanner, { appearance: 'info', size: 'l', icon: 'medium/bonus-check', iconColor: 'var(--tui-status-info)', onClose: false, text: 'Сертифицированный партнер Wildberries' }))),
 
-      h('div', { style: { position: 'sticky', bottom: 0, display: 'flex', justifyContent: 'center', padding: '16px 0 24px', background: 'var(--tui-background-base)' } },
-        h(T.Button, { size: 'l', onClick: onConnect }, 'К подключению'))));
+      h('div', { style: { position: 'sticky', bottom: 24 } },
+        h(T.Button, { size: 'l', block: true, onClick: onConnect }, 'К подключению'))));
 }

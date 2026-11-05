@@ -120,3 +120,22 @@ export const PRODUCTS_WORST = [
 /* Высоты столбцов из макета (пн–вс), px при высоте графика 229 */
 export const CHART = [116, 77, 151, 103, 146, 200, 174];
 export const DAYS = ['пн', 'вт', 'ср', 'чт', 'пт', 'сб', 'вс'];
+
+/* Вторые вкладки («По выручке») — фейк-данные */
+export const ABC_REVENUE = [
+  { label: '70% выручки', pcs: '26\u00a0шт', pct: '44%', w: 44 },
+  { label: '22% выручки', pcs: '14\u00a0шт', pct: '24%', w: 24 },
+  { label: '8% выручки', pcs: '20\u00a0шт', pct: '32%', w: 32 }
+];
+
+export const PRODUCTS_BEST_REV = [
+  { img: prod2, title: SHORT, sku: SKU, sum: '1\u00a0520\u00a0340\u00a0₽' },
+  { img: prod3, title: LONG_B, sku: SKU, sum: '1\u00a0011\u00a0220\u00a0₽' },
+  { img: prod1, title: LONG_A, sku: SKU, sum: '684\u00a0905\u00a0₽' }
+];
+
+export const PRODUCTS_WORST_REV = [
+  { img: prod6, title: SHORT, sku: SKU, sum: '12\u00a0400\u00a0₽' },
+  { img: prod5, title: LONG_A, sku: SKU, sum: '0\u00a0₽' },
+  { img: prod4, title: LONG_A, sku: SKU, sum: '−5\u00a0200\u00a0₽' }
+];
