@@ -1,5 +1,5 @@
 import { React, T } from './runtime.js';
-import { HERO, TOOLS, TOOL_GROUPS, CONTEXT } from './data.js';
+import { TOOLS, TOOL_GROUPS } from './data.js';
 import hero from '../assets/hero.png';
 
 const h = React.createElement;
@@ -9,8 +9,8 @@ function Tile({ id, span, big, onOpen }) {
   const tool = TOOLS[id];
   const pic = big ? 120 : 72;
   return h('div', { style: { position: 'relative', gridColumn: span ? `span ${span}` : undefined, gridRow: big ? 'span 2' : undefined, minHeight: 92 } },
-    h(T.CardMedium, { title: tool.title, size: big ? 140 : 92, onClick: () => onOpen(id), style: { width: '100%', height: '100%' } }),
-    h('img', { src: tool.img, alt: '', style: { position: 'absolute', right: 0, bottom: 0, width: pic, height: pic, objectFit: 'contain', pointerEvents: 'none' } }));
+    h(T.CardMedium, { title: tool.title, size: 92, onClick: () => onOpen(id), style: { width: '100%', height: '100%' } }),
+    tool.img && h('img', { src: tool.img, alt: '', style: { position: 'absolute', right: 0, bottom: 0, width: pic, height: pic, objectFit: 'contain', pointerEvents: 'none' } }));
 }
 
 function Group({ group, onOpen }) {
@@ -24,11 +24,39 @@ function Group({ group, onOpen }) {
     grid = { display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 8 };
     tiles = [h(Tile, { key: a, id: a, span: 4, onOpen }), h(Tile, { key: b, id: b, span: 2, onOpen }),
       h(Tile, { key: c, id: c, span: 2, onOpen }), h(Tile, { key: d, id: d, span: 2, onOpen }), h(Tile, { key: e, id: e, span: 2, onOpen })];
-  } else {
+  } else if (group.grid === 'pair') {
     grid = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 };
     tiles = group.items.map(id => h(Tile, { key: id, id, onOpen }));
+  } else {
+    grid = { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 };
+    tiles = [
+      h(Tile, { key: a, id: a, onOpen }),
+      h(Tile, { key: b, id: b, onOpen }),
+      h(Tile, { key: c, id: c, span: 2, onOpen })
+    ];
   }
-  return h(T.CardLarge, { appearance: 'elevated', hover: '', title: group.title, subtitle: group.subtitle }, h('div', { style: grid }, tiles));
+  return h('div', { style: grid }, tiles);
+}
+
+function Tools({ onOpen }) {
+  const [selected, setSelected] = React.useState(TOOL_GROUPS[0].title);
+  const group = TOOL_GROUPS.find(item => item.title === selected) || TOOL_GROUPS[0];
+  return h(T.CardLarge, {
+    appearance: 'elevated',
+    hover: '',
+    title: 'Более 200 инструментов для роста',
+    subtitle: 'Под любой запрос',
+    accessory: h(T.Avatar, { icon: 'medium/chart-bar-grow', shape: 'square', tone: 'accent-2' })
+  },
+  h('div', { style: { display: 'flex', flexDirection: 'column', gap: 16 } },
+    h(T.ChipGroup, {
+      items: TOOL_GROUPS.map(item => ({ label: item.title, value: item.title })),
+      mode: 'single',
+      value: selected,
+      onChange: setSelected,
+      size: 's'
+    }),
+    h(Group, { group, onOpen })));
 }
 
 /* Логотип MPSTATS из макета (белый знак на зелёном аватаре) */
@@ -48,26 +76,36 @@ function Automation() {
     h(T.ProgressBar, { value: 1, max: 1, thickness: 8, color: '#8a8f99', labels: { topLeft: 'Без MPSTATS AI', topRight: '4–6 часов' } })));
 }
 
+function MigrationFeature({ title, subtitle, icon }) {
+  return h('div', { style: { position: 'relative', minWidth: 0 } },
+    h(T.CardMedium, { title, subtitle, size: 140, className: 'migration-feature', style: { width: '100%', height: 140, background: 'var(--tui-background-neutral-1)' } }),
+    h(T.Icon, { name: icon, size: 30, style: { position: 'absolute', top: 12, left: 12, pointerEvents: 'none' } }));
+}
+
 function Stat({ title, subtitle }) {
   return h(T.CardMedium, { title, subtitle, size: 140, style: { width: '100%', height: 92, gap: 4, justifyContent: 'flex-start' } });
 }
 
 /* Лендинг подписки. ctx — ключ контекста с главной; без него — общий заголовок.
    Кнопки «Назад» нет, только «Закрыть». */
-export function Landing({ ctx, onOpenTool, onConnect }) {
-  const context = ctx && CONTEXT[ctx];
-  const title = context ? context.title : 'Рост продаж на маркетплейсах';
-  const subtitle = context ? context.text : 'С подпиской MPSTATS × Т-Бизнес';
+export function Landing({ onOpenTool, onConnect }) {
   return (
     h('div', { style: { width: '100%', display: 'flex', flexDirection: 'column', gap: 24 } },
       h('div', { style: { textAlign: 'center' } },
         h('div', { style: { position: 'relative', width: 528, maxWidth: '100%', height: 280, overflow: 'hidden', margin: '0 auto' } },
           h('img', { src: hero, alt: '', style: { position: 'absolute', top: 0, left: '19.62%', width: '84.85%', height: '100%', maxWidth: 'none' } })),
-        h('h1', { className: 'tui-heading-4', style: { margin: '0 0 8px' } }, title),
-        h('p', { className: 'tui-body-m', style: { margin: 0 } }, subtitle)),
+        h('h1', { className: 'tui-heading-4', style: { margin: '0 0 8px' } }, 'Селлер станет частью MPSTATS'),
+        h('p', { className: 'tui-body-m', style: { margin: 0 } }, 'С 1 февраля сводка магазина останется в Селлере, а подробные отчеты и инструменты будут открываться в сервисе MPSTATS')),
+
+      h(T.CardLarge, { appearance: 'elevated', hover: '', title: 'Что будет с вашей работой' },
+        h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 } },
+          h(MigrationFeature, { title: 'API-ключи останутся', subtitle: 'Повторно добавлять уже сохраненные ключи не нужно', icon: 'medium/key' }),
+          h(MigrationFeature, { title: 'Работайте как обычно', subtitle: 'До конца подписки все инструменты Селлера доступны', icon: 'medium/check' }))),
+
+      h('h2', { className: 'tui-heading-4', style: { textAlign: 'center', margin: '8px 0 0' } }, 'Подробнее о новой подписке'),
 
       h(T.CardLarge, { appearance: 'elevated', hover: '' },
-        h(T.Cell, { title: '14 дней бесплатно и 50% скидка на первый месяц', avatar: h(T.Avatar, { icon: 'medium/percent', shape: 'square', background: 'tui-status-positive-pale', color: 'tui-status-positive' }) })),
+        h(T.Cell, { title: '14 дней бесплатно и 50% скидку на первый месяц для новой подписки', avatar: h(T.Avatar, { icon: 'medium/percent', shape: 'square', background: 'tui-status-positive-pale', color: 'tui-status-positive' }) })),
 
       h(T.CardLarge, { appearance: 'elevated', hover: '', title: 'Понимаем проблемы селлеров', subtitle: 'И уже более 6 лет помогаем решать их' },
         h(T.Cell, { title: 'Продажи и конверсии падают', avatar: h(T.Avatar, { icon: 'medium/chart-bar-decrease', shape: 'square', tone: 'neutral' }) }),
@@ -75,10 +113,7 @@ export function Landing({ ctx, onOpenTool, onConnect }) {
         h(T.Cell, { title: 'Реклама сжигает бюджеты', avatar: h(T.Avatar, { icon: 'medium/flash', shape: 'square', tone: 'neutral' }) }),
         h(T.Cell, { title: 'Рутина отнимает время команды', avatar: h(T.Avatar, { icon: 'medium/clock', shape: 'square', tone: 'neutral' }) })),
 
-      h(T.CardLarge, { appearance: 'elevated', hover: '', title: 'Более 200 инструментов для роста продаж', subtitle: 'Под любой запрос',
-        accessory: h(T.Avatar, { icon: 'medium/chart-bar-grow', shape: 'square', tone: 'accent-2' }) }),
-
-      TOOL_GROUPS.map(g => h(Group, { key: g.title, group: g, onOpen: onOpenTool })),
+      h(Tools, { onOpen: onOpenTool }),
       h(Automation),
 
       h(T.CardLarge, { appearance: 'elevated', hover: '',
@@ -93,6 +128,5 @@ export function Landing({ ctx, onOpenTool, onConnect }) {
             h(Stat, { title: '95%', subtitle: 'точность данных' })),
           h(T.NotificationBanner, { appearance: 'info', size: 'l', icon: 'medium/bonus-check', iconColor: 'var(--tui-status-info)', onClose: false, text: 'Сертифицированный партнер Wildberries' }))),
 
-      h('div', { style: { position: 'sticky', bottom: 24 } },
-        h(T.Button, { size: 'l', block: true, onClick: onConnect }, 'К подключению'))));
+      h('p', { className: 'tui-body-s', style: { margin: 0, color: 'var(--tui-text-secondary)' } }, 'С 1 февраля вы также сможете продолжить с бесплатным доступом. Без вашего согласия платный тариф не подключится')));
 }

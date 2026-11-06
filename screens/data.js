@@ -10,6 +10,8 @@ import p9 from '../assets/p9.png';
 import p10 from '../assets/p10.png';
 import p11 from '../assets/p11.png';
 import p12 from '../assets/p12.png';
+import aiContent from '../assets/ai-content.png';
+import cardEditor from '../assets/card-editor.png';
 import prod1 from '../assets/home/prod1.png';
 import prod2 from '../assets/home/prod2.png';
 import prod3 from '../assets/home/prod3.png';
@@ -81,13 +83,28 @@ export const TOOLS = {
     title: 'SEO',
     img: p12,
     text: 'Подбирает запросы, по которым товар ищут, и проверяет, попадает ли карточка в топ. Показывает, каких слов не хватает в названии и характеристиках, чтобы поднять показы.'
+  },
+  aiContent: {
+    title: 'Студия AI-контента',
+    img: aiContent,
+    text: 'Создаёт изображения и тексты для карточек товаров по данным вашего ассортимента. Помогает быстро проверить несколько идей и подготовить контент без привлечения отдельной команды.'
+  },
+  cardEditor: {
+    title: 'Редактирование карточек',
+    img: cardEditor,
+    text: 'Собирает характеристики, описание и визуалы карточки в одном сценарии. Помогает вносить изменения быстрее и поддерживать данные каталога актуальными.'
+  },
+  externalAds: {
+    title: 'Внешняя реклама',
+    text: 'Помогает планировать и оценивать внешние рекламные размещения, чтобы привлекать трафик на карточки и понимать вклад каждого канала в продажи.'
   }
 };
 
 export const TOOL_GROUPS = [
-  { title: 'Внутренняя аналитика', subtitle: 'Контролируйте продажи и остатки, анализируйте прибыль и расходы', grid: 'fin', items: ['fin', 'matrix', 'logistics'] },
-  { title: 'Внешняя аналитика', subtitle: 'Анализируйте рынок и конкурентов', grid: 'wide', items: ['competitors', 'sku360', 'ads', 'reviews', 'trends'] },
-  { title: 'Продвижение', subtitle: 'Находите точки роста для SEO и трафика', grid: 'pair', items: ['bidder', 'price', 'replies', 'seo'] }
+  { title: 'Внутренняя аналитика', grid: 'fin', items: ['fin', 'matrix', 'logistics'] },
+  { title: 'Внешняя аналитика', grid: 'wide', items: ['competitors', 'sku360', 'ads', 'reviews', 'trends'] },
+  { title: 'Продвижение', grid: 'pair', items: ['bidder', 'price', 'replies', 'seo'] },
+  { title: 'Карточки и контент', grid: 'content', items: ['aiContent', 'cardEditor', 'externalAds'] }
 ];
 
 /* Контекстные входы на лендинг: с какого виджета главной пришёл пользователь */

@@ -6,6 +6,129 @@
   width: 528px;
 }
 
+/* В галерее инструментов остаётся только «Назад»: закрытие доступно из остальных шагов. */
+.proto-funnel--tool .tui-dab__side--r {
+  display: none;
+}
+
+/* В карточках миграции иконка остаётся сверху, а подпись — у нижнего края, как в макете. */
+.migration-feature .tui-cm__text {
+  margin-top: auto;
+}
+
+.migration-feature .tui-cm__subtitle {
+  -webkit-line-clamp: 2;
+}
+
+.legacy-chart {
+  min-height: 342px;
+  box-sizing: border-box;
+  padding: 20px 16px 20px 24px;
+  border-radius: 24px;
+  background: var(--tui-background-base-alt);
+}
+.legacy-chart__plot {
+  position: relative;
+  height: 252px;
+  margin-top: 18px;
+  margin-right: 54px;
+}
+.legacy-chart__grid {
+  position: absolute;
+  inset: 0 0 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.legacy-chart__grid span {
+  border-top: 1px dashed #dddfe0;
+}
+.legacy-chart__grid span:last-child {
+  border-top-style: solid;
+}
+.legacy-chart__bars {
+  position: absolute;
+  inset: 0 0 24px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+}
+.legacy-chart__column {
+  position: relative;
+  display: flex;
+  width: 32px;
+  height: 100%;
+  align-items: flex-end;
+  justify-content: center;
+}
+.legacy-chart__ordered,
+.legacy-chart__bought {
+  position: absolute;
+  bottom: 0;
+  width: 6px;
+  border-radius: 4px 4px 0 0;
+}
+.legacy-chart__ordered { background: #c7c9cc; }
+.legacy-chart__bought { background: var(--tui-background-accent-2); }
+.legacy-chart__day {
+  position: absolute;
+  top: calc(100% + 8px);
+  color: var(--tui-text-secondary);
+  font-size: 11px;
+  line-height: 16px;
+}
+.legacy-chart__axis {
+  position: absolute;
+  top: 0;
+  right: -50px;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: var(--tui-text-secondary);
+  font-size: 11px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.migration-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+/* В панели DialKit оставляем только переключатель режима — версии и экспорт параметров
+   здесь не нужны, потому что это служебный контрол для просмотра двух экранов. */
+.dialkit-panel-toolbar {
+  display: none !important;
+}
+
+.dialkit-labeled-control-label {
+  font-size: 0;
+}
+
+.dialkit-labeled-control-label::after {
+  content: 'Селлер';
+  font-size: 12px;
+}
+
+.dialkit-segmented-button {
+  font-size: 0;
+}
+
+.dialkit-segmented-button:first-of-type::after {
+  content: 'Старый';
+}
+
+.dialkit-segmented-button:last-of-type::after {
+  content: 'Новый';
+}
+
+.dialkit-segmented-button::after {
+  font-size: 12px;
+}
+
 /* Появление и закрытие — как у BottomSheet (Web): выезд снизу 350 мс, закрытие 300 мс,
    подложка service-backdrop меняется вместе с движением. В гайде полноэкранного диалога подложки нет,
    поэтому слой подложки добавлен здесь, под экраном. */

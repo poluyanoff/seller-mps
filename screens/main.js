@@ -1,5 +1,8 @@
 import { React, T, createRoot } from './runtime.js';
+import { DialRoot, useDialKit } from 'dialkit';
+import 'dialkit/styles.css';
 import './proto.css';
+import { LegacySeller } from './legacy.js';
 import { Home } from './home.js';
 import { Landing } from './landing.js';
 import { Tool } from './tool.js';
@@ -14,6 +17,11 @@ const h = React.createElement;
    Экран воронки — запись в стеке: { name, ...параметры }. «Назад» снимает верхнюю запись,
    «Закрыть» закрывает диалог. Состояние connected живёт в памяти и сбрасывается перезагрузкой. */
 function App() {
+  const mode = useDialKit('Настройки', { 'Режим Селлера': false }, {
+    id: 'seller-mode-tabs',
+    persist: true,
+    defaultCollapsed: true
+  });
   const [stack, setStack] = React.useState([]);
   const [session, setSession] = React.useState(0);
   const [busy, setBusy] = React.useState(false);
@@ -41,7 +49,7 @@ function App() {
     setStack(st => st.slice(0, -1));
   };
   const close = () => { scrolls.current = []; setStack([]); setBusy(false); };
-  const open = ctx => { scrolls.current = []; setSession(n => n + 1); direction.current = 'forward'; setStack([{ name: 'landing', ctx }]); };
+  const open = () => { scrolls.current = []; setSession(n => n + 1); direction.current = 'forward'; setStack([{ name: 'landing' }]); };
   const connect = () => {
     setBusy(true);
     setTimeout(() => { setBusy(false); setConnected(true); push({ name: 'success' }); }, 700);
@@ -62,7 +70,13 @@ function App() {
   let body = null;
   let extra = {};
   if (shown && shown.name === 'landing') {
-    body = h(Landing, { ctx: shown.ctx, onOpenTool: id => push({ name: 'tool', id }), onConnect: () => push({ name: 'checkout' }) });
+    body = h(Landing, { onOpenTool: id => push({ name: 'tool', id }), onConnect: () => push({ name: 'checkout' }) });
+    extra = {
+      stickyFooter: true,
+      actions: [h('div', { key: 'migration-actions', className: 'migration-actions' },
+        h(T.Button, { size: 'l', block: true, onClick: () => push({ name: 'checkout' }) }, 'К условиям'),
+        h(T.Button, { size: 'l', appearance: 'secondary', block: true }, 'Позвоните мне'))]
+    };
   } else if (shown && shown.name === 'tool') {
     body = h(Tool, { id: shown.id, onDone: back });
     extra = { onBack: back };
@@ -74,12 +88,15 @@ function App() {
   }
 
   return h(React.Fragment, null,
-    h(Home, { connected, open }),
+    mode['Режим Селлера']
+      ? h(Home, { connected, open })
+      : h(LegacySeller, { onDetails: open }),
     shown && h(T.Dialog, Object.assign({
       key: session, open: stack.length > 0, fullscreen: true, closePosition: 'right', dismissible: false,
-      className: 'proto-funnel', onClose: close,
+      className: `proto-funnel${shown && shown.name === 'tool' ? ' proto-funnel--tool' : ''}`, onClose: close,
       step: shown.name + (shown.id || ''), stepDirection: direction.current
-    }, extra), body));
+    }, extra), body),
+    h(DialRoot, { position: 'bottom-right', theme: 'dark', defaultOpen: false, productionEnabled: true, versions: 'menu' }));
 }
 
 createRoot(document.getElementById('root')).render(h(App));
