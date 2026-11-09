@@ -22,6 +22,7 @@ function App() {
     persist: true,
     defaultCollapsed: true
   });
+  const newSeller = !!mode['Режим Селлера'];
   const [stack, setStack] = React.useState([]);
   const [session, setSession] = React.useState(0);
   const [busy, setBusy] = React.useState(false);
@@ -49,7 +50,7 @@ function App() {
     setStack(st => st.slice(0, -1));
   };
   const close = () => { scrolls.current = []; setStack([]); setBusy(false); };
-  const open = () => { scrolls.current = []; setSession(n => n + 1); direction.current = 'forward'; setStack([{ name: 'landing' }]); };
+  const open = ctx => { scrolls.current = []; setSession(n => n + 1); direction.current = 'forward'; setStack([{ name: 'landing', ctx: typeof ctx === 'string' ? ctx : undefined }]); };
   const connect = () => {
     setBusy(true);
     setTimeout(() => { setBusy(false); setConnected(true); push({ name: 'success' }); }, 700);
@@ -70,13 +71,7 @@ function App() {
   let body = null;
   let extra = {};
   if (shown && shown.name === 'landing') {
-    body = h(Landing, { onOpenTool: id => push({ name: 'tool', id }), onConnect: () => push({ name: 'checkout' }) });
-    extra = {
-      stickyFooter: true,
-      actions: [h('div', { key: 'migration-actions', className: 'migration-actions' },
-        h(T.Button, { size: 'l', block: true, onClick: () => push({ name: 'checkout' }) }, 'К условиям'),
-        h(T.Button, { size: 'l', appearance: 'secondary', block: true }, 'Позвоните мне'))]
-    };
+    body = h(Landing, { variant: newSeller ? 'new' : 'legacy', ctx: shown.ctx, onOpenTool: id => push({ name: 'tool', id }), onConnect: () => push({ name: 'checkout' }) });
   } else if (shown && shown.name === 'tool') {
     body = h(Tool, { id: shown.id, onDone: back });
     extra = { onBack: back };
@@ -84,13 +79,13 @@ function App() {
     body = h(Checkout);
     extra = { onBack: back, actions: [{ label: 'Подключить', onClick: connect, loading: busy }], legalPosition: 'right', legal: CHECKOUT_LEGAL };
   } else if (shown && shown.name === 'success') {
-    body = h(Success, { onHome: close });
+    body = h(Success, { variant: newSeller ? 'new' : 'legacy', onHome: close });
   }
 
   return h(React.Fragment, null,
-    mode['Режим Селлера']
+    newSeller
       ? h(Home, { connected, open })
-      : h(LegacySeller, { onDetails: open }),
+      : h(LegacySeller, { onDetails: () => open(), scheduled: connected }),
     shown && h(T.Dialog, Object.assign({
       key: session, open: stack.length > 0, fullscreen: true, closePosition: 'right', dismissible: false,
       className: `proto-funnel${shown && shown.name === 'tool' ? ' proto-funnel--tool' : ''}`, onClose: close,

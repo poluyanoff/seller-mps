@@ -75,3 +75,19 @@
     transform: none;
   }
 }
+
+/* Виджеты-входы (реклама, остатки, ABC, рейтинг): при наведении на карточку заголовок синеет,
+   шеврон уезжает вправо — сдвиг шеврона на 4 даёт сам CardLarge. Цвет — тем же переходом. */
+.proto-widget .tui-card__titlelink {
+  transition: color var(--duration-fast, 150ms) var(--easing-productive-standard, ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .proto-widget:hover .tui-card__titlelink {
+    color: var(--tui-text-action);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .proto-widget .tui-card__titlelink {
+    transition: none;
+  }
+}

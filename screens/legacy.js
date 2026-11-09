@@ -32,7 +32,7 @@ function LegacyNav() {
       sections.map((label, index) => h('span', { key: label, className: 'tui-body-s', style: { color: index === 0 ? 'var(--tui-text-primary)' : 'var(--tui-text-secondary)', borderBottom: index === 0 ? '2px solid var(--tui-text-primary)' : undefined, height: '100%', display: 'inline-flex', alignItems: 'center' } }, label))));
 }
 
-export function LegacySeller({ onDetails }) {
+export function LegacySeller({ onDetails, scheduled }) {
   const filters = h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, margin: '24px 0 20px' } },
     h(T.Chip, { size: 'm', shape: 'rounded', dropdown: true, style: { background: 'var(--tui-background-base)', border: '1px solid var(--tui-border-normal)', borderRadius: 8 } }, 'Эта неделя'),
     h(T.Chip, { size: 'm', shape: 'rounded', dropdown: true, style: { background: 'var(--tui-background-base)', border: '1px solid var(--tui-border-normal)', borderRadius: 8 } }, 'Wildberries'),
@@ -52,11 +52,14 @@ export function LegacySeller({ onDetails }) {
     h(LegacyNav),
     h('div', { style: { background: 'var(--tui-background-base)', padding: '32px 0 24px' } },
       h('div', { style: { width: 1104, maxWidth: 'calc(100% - 64px)', margin: '0 auto' } },
-        h(T.NotificationBanner, {
-          appearance: 'info', size: 'l', title: 'С 1 февраля Селлер изменится',
-          text: 'Сервис станет MPSTATS × Т‑Бизнес. Рассказываем, что изменится для вас',
-          action: 'Узнать подробности', onAction: onDetails, onClose: false
-        }))),
+        scheduled
+          /* После оформления перехода: серая нотификация (макет 8618:225638), без «Скрыть». Размер L, как у синей, чтобы шрифт и высота совпадали */
+          ? h(T.NotificationBanner, { appearance: 'neutral', size: 'l', horizontal: true, onClose: false,
+            text: '1 февраля подключим Базовый тариф MPSTATS\u00a0×\u00a0Т-Бизнес', action: 'Условия перехода', onAction: onDetails })
+          /* Горизонтальная нотификация в одну строку (макет 8618:224671) */
+          : h(T.NotificationBanner, { appearance: 'info', size: 'l', horizontal: true, onClose: false,
+            text: 'С 1 февраля сервис изменится и станет MPSTATS\u00a0×\u00a0Т-Бизнес. Рассказываем, что изменится для вас',
+            action: 'Узнать подробности', onAction: onDetails }))),
     h('div', { style: { width: 1104, maxWidth: 'calc(100% - 64px)', margin: '28px auto 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--tui-border-normal)' } },
       h('h1', { className: 'tui-heading-6', style: { margin: '0 0 16px' } }, 'Аналитика — Тестовый магазин'),
       h('div', { style: { display: 'flex', gap: 20 } }, ['Сводка', 'Прибыли и убытки', 'Юнит-экономика', 'ABC-анализ', 'Реклама'].map((label, index) => h('span', { key: label, className: 'tui-body-s', style: { color: index === 0 ? 'var(--tui-text-primary)' : 'var(--tui-text-secondary)', paddingBottom: 16, borderBottom: index === 0 ? '2px solid var(--tui-text-primary)' : undefined } }, label)))));

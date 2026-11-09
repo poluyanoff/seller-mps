@@ -11,15 +11,6 @@
   display: none;
 }
 
-/* В карточках миграции иконка остаётся сверху, а подпись — у нижнего края, как в макете. */
-.migration-feature .tui-cm__text {
-  margin-top: auto;
-}
-
-.migration-feature .tui-cm__subtitle {
-  -webkit-line-clamp: 2;
-}
-
 .legacy-chart {
   min-height: 342px;
   box-sizing: border-box;
@@ -89,13 +80,6 @@
   font-size: 11px;
   line-height: 16px;
   white-space: nowrap;
-}
-
-.migration-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  width: 100%;
 }
 
 /* В панели DialKit оставляем только переключатель режима — версии и экспорт параметров

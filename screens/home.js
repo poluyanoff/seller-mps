@@ -210,14 +210,16 @@ export function Home({ connected, open, toast }) {
   const [abcTab, setAbcTab] = React.useState(0);
   const [ratingTab, setRatingTab] = React.useState(0);
   const nb = t => t.replace(/ /g, '\u00a0');
-  const card = (props, ...kids) => h(T.CardLarge, Object.assign({ appearance: 'elevated', hover: '', platform: 'desktop' }, props), ...kids);
+  const card = (props, ...kids) => h(T.CardLarge, Object.assign({ appearance: 'elevated', hover: '', platform: 'desktop' }, props, props.ctx && !connected ? { onClick: go(props.ctx), className: props.disclosure ? 'proto-widget' : undefined } : null), ...kids);
   const pad = (n, node) => h('div', { style: { paddingTop: n } }, node);
-  const clickable = (ctx, node, flex) => h('div', { key: 'c-' + ctx, style: { cursor: connected ? 'default' : 'pointer', flex: flex ? 1 : undefined, minWidth: 0 }, onClick: connected ? undefined : go(ctx) }, node);
+  /* Виджет-вход: вся карточка — зона клика (палец), заголовок синеет, шеврон уезжает вправо (см. home.css).
+     После подключения виджеты перестают быть кликабельными. */
+  const clickable = (ctx, node, flex) => h('div', { key: 'c-' + ctx, style: { flex: flex ? 1 : undefined, minWidth: 0 } }, node);
   const nav = { disclosure: true };
   const row = (...c) => h('div', { style: { display: 'flex', gap: 12 } }, ...c);
 
   const main = [
-    clickable('summary', card({ key: 'sum', title: 'Сводка' },
+    clickable('summary', card({ key: 'sum', title: 'Сводка', ctx: 'summary' },
       h(Bars),
       h('div', { style: { display: 'flex', flexDirection: 'column', gap: 12 } },
         row(
@@ -237,13 +239,13 @@ export function Home({ connected, open, toast }) {
       footer: h(T.Button, { appearance: 'primary-grayscale-on-dark', size: 'm', onClick: go('summary') }, ign('Подробнее')) }),
 
     h('div', { key: 'row', style: { display: 'flex', gap: 32, alignItems: 'flex-start' } },
-      clickable('ads', card({ title: 'Реклама', ...nav, style: { width: '100%' } },
+      clickable('ads', card({ title: 'Реклама', ...nav, ctx: 'ads', style: { width: '100%' } },
         h('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
           h(Ring, { value: 0.15, color: 'var(--tui-categorical-09)', big: '15%', label: 'ДРР', delta: '−2,3 п.п.' }),
           row(
             h(Metric, { value: nb('25 487 ₽'), label: 'Расходы на рекламу', delta: '−10%', hint: false, gap: 60 }),
             h(Metric, { value: nb('0,34 ₽'), label: 'CPC', delta: '+15%', tone: 'bad' })))), true),
-      clickable('stock', card({ title: 'Остатки', ...nav, style: { width: '100%' } },
+      clickable('stock', card({ title: 'Остатки', ...nav, ctx: 'stock', style: { width: '100%' } },
         h('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
           h(Ring, { value: 0.89, color: 'var(--tui-status-positive)', big: '89%', label: 'Локализация', delta: '−3 п.п.', tone: 'bad' }),
           h('div', { style: { display: 'flex', flexDirection: 'column', gap: 12 } },
@@ -252,10 +254,10 @@ export function Home({ connected, open, toast }) {
               h(Metric, { value: ign('454 арт.'), label: 'На складах', sub: nb('234 465 ₽'), hint: false }),
               h(Metric, { value: ign('33 арт.'), label: 'К поставке', sub: nb('34 465 ₽') }))))), true)),
 
-    clickable('abc', card({ key: 'abc', title: 'ABC\u2011анализ', ...nav },
+    clickable('abc', card({ key: 'abc', title: 'ABC\u2011анализ', ...nav, ctx: 'abc' },
       h(React.Fragment, null, h(Seg, { items: ['По прибыли', 'По выручке'], value: abcTab, onChange: setAbcTab }), h(AbcBody, { tab: abcTab })))),
 
-    clickable('rating', card({ key: 'rate', title: 'Рейтинг товаров', ...nav },
+    clickable('rating', card({ key: 'rate', title: 'Рейтинг товаров', ...nav, ctx: 'rating' },
       h('div', { style: { display: 'flex', flexDirection: 'column', gap: 20 } },
         h(Seg, { items: ['По прибыли', 'По выручке'], value: ratingTab, onChange: setRatingTab }),
         h('div', null, h('div', { className: 'tui-ui-l-bold', style: { marginBottom: 8 } }, 'Продаются лучше'), (ratingTab === 0 ? PRODUCTS_BEST : PRODUCTS_BEST_REV).map((p, i) => h(ProductRow, { key: ratingTab + '-' + i, p }))),

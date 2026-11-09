@@ -1,5 +1,5 @@
 import { React, T } from './runtime.js';
-import { TOOLS, TOOL_GROUPS } from './data.js';
+import { TOOLS, TOOL_GROUPS, AUTOMATION, CONTEXT } from './data.js';
 import hero from '../assets/hero.png';
 
 const h = React.createElement;
@@ -46,7 +46,7 @@ function Tools({ onOpen }) {
     hover: '',
     title: 'Более 200 инструментов для роста',
     subtitle: 'Под любой запрос',
-    accessory: h(T.Avatar, { icon: 'medium/chart-bar-grow', shape: 'square', tone: 'accent-2' })
+    accessory: h(T.Avatar, { icon: 'medium/chart-grow', shape: 'square', background: 'tui-status-info-pale', color: 'tui-status-info' })
   },
   h('div', { style: { display: 'flex', flexDirection: 'column', gap: 16 } },
     h(T.ChipGroup, {
@@ -64,48 +64,44 @@ const partnerIcon = h('svg', { width: 24, height: 24, viewBox: '0 0 24 24', fill
   h('path', { d: 'M18.6339 14.8764L6.90323 21.4658C6.4242 21.7356 5.84071 21.3778 5.84071 20.8162V7.6428C5.84071 7.08132 6.42411 6.72625 6.90323 6.99321C7.13341 7.12255 7.2779 7.373 7.2779 7.6428V15.2369C7.2779 15.7984 7.86406 16.1562 8.34319 15.8838L15.1626 12.0193C15.3768 11.8981 15.639 11.8981 15.8531 12.0165L18.6312 13.5744C19.1343 13.8607 19.1343 14.5983 18.6338 14.8763L18.6339 14.8764Z', fill: '#fff' }),
   h('path', { d: 'M17.5975 7.5873C18.0634 7.8767 18.0634 8.58351 17.5975 8.87281L14.0299 11.0932L13.9717 11.1294L9.67364 13.8061C9.19995 14.1011 8.60177 13.7421 8.60177 13.1634V3.29684C8.60177 2.71812 9.19995 2.35913 9.67364 2.6541L17.5975 7.5873Z', fill: '#fff' }));
 
-const tabs = ['Аудит карточки', 'Поиск ниши', 'Ответы на отзывы', 'Создание фото'];
-
 function Automation() {
-  const [tab, setTab] = React.useState('Аудит карточки');
+  const [tab, setTab] = React.useState(AUTOMATION[0].tab);
+  const item = AUTOMATION.find(x => x.tab === tab) || AUTOMATION[0];
   return h(T.CardLarge, { appearance: 'elevated', hover: '', title: 'Автоматизация',
     subtitle: 'Упрощайте рутину, анализируя по MCP 500+ ТБ данных WB и Ozon' },
   h('div', { style: { display: 'flex', flexDirection: 'column', gap: 20 } },
-    h(T.ChipGroup, { items: tabs.map(t => ({ label: t, value: t })), mode: 'single', value: tab, onChange: setTab, size: 's' }),
-    h(T.ProgressBar, { value: 0.2, max: 1, thickness: 8, color: '#986dd4', labels: { topLeft: 'С MPSTATS AI', topRight: 'До 3 минут' } }),
-    h(T.ProgressBar, { value: 1, max: 1, thickness: 8, color: '#8a8f99', labels: { topLeft: 'Без MPSTATS AI', topRight: '4–6 часов' } })));
-}
-
-function MigrationFeature({ title, subtitle, icon }) {
-  return h('div', { style: { position: 'relative', minWidth: 0 } },
-    h(T.CardMedium, { title, subtitle, size: 140, className: 'migration-feature', style: { width: '100%', height: 140, background: 'var(--tui-background-neutral-1)' } }),
-    h(T.Icon, { name: icon, size: 30, style: { position: 'absolute', top: 12, left: 12, pointerEvents: 'none' } }));
+    h(T.ChipGroup, { items: AUTOMATION.map(x => ({ label: x.tab, value: x.tab })), mode: 'single', value: tab, onChange: setTab, size: 's' }),
+    h('div', { style: { display: 'flex', flexDirection: 'column', gap: 20 } },
+      h(T.ProgressBar, { value: item.ai.share, max: 1, thickness: 12, animated: true, color: 'tui-brand-t-ai-assistant', labels: { topLeft: 'С MPSTATS AI', topRight: item.ai.time } }),
+      h(T.ProgressBar, { value: item.other.share, max: 1, thickness: 12, animated: true, color: 'tui-status-neutral', labels: { topLeft: item.other.label, topRight: item.other.time } }))));
 }
 
 function Stat({ title, subtitle }) {
   return h(T.CardMedium, { title, subtitle, size: 140, style: { width: '100%', height: 92, gap: 4, justifyContent: 'flex-start' } });
 }
 
-/* Лендинг подписки. ctx — ключ контекста с главной; без него — общий заголовок.
-   Кнопки «Назад» нет, только «Закрыть». */
-export function Landing({ onOpenTool, onConnect }) {
+/* Лендинг подписки — один компонент на два режима Селлера.
+   variant 'legacy' — старый Селлер: объявление о переезде в MPSTATS, кнопки «К условиям» и «Позвоните мне».
+   variant 'new' — новый Селлер: контекстный заголовок (ctx — ключ виджета главной) и кнопка «К подключению».
+   Всё остальное общее. Кнопки «Назад» нет, только «Закрыть» (в Dialog). */
+export function Landing({ variant = 'new', ctx, onOpenTool, onConnect }) {
+  const legacy = variant === 'legacy';
+  const context = !legacy && ctx && CONTEXT[ctx];
+  const title = legacy ? 'С 1 февраля Селлер станет частью MPSTATS' : context ? context.title : 'Рост продаж на маркетплейсах';
+  const subtitle = legacy
+    ? 'Ваши API-ключи останутся и добавлять повторно их не нужно. До конца текущей подписки все инструменты Селлера будут доступны'
+    : context ? context.text : 'С подпиской MPSTATS\u00a0×\u00a0Т-Бизнес';
   return (
     h('div', { style: { width: '100%', display: 'flex', flexDirection: 'column', gap: 24 } },
       h('div', { style: { textAlign: 'center' } },
         h('div', { style: { position: 'relative', width: 528, maxWidth: '100%', height: 280, overflow: 'hidden', margin: '0 auto' } },
           h('img', { src: hero, alt: '', style: { position: 'absolute', top: 0, left: '19.62%', width: '84.85%', height: '100%', maxWidth: 'none' } })),
-        h('h1', { className: 'tui-heading-4', style: { margin: '0 0 8px' } }, 'Селлер станет частью MPSTATS'),
-        h('p', { className: 'tui-body-m', style: { margin: 0 } }, 'С 1 февраля сводка магазина останется в Селлере, а подробные отчеты и инструменты будут открываться в сервисе MPSTATS')),
-
-      h(T.CardLarge, { appearance: 'elevated', hover: '', title: 'Что будет с вашей работой' },
-        h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 } },
-          h(MigrationFeature, { title: 'API-ключи останутся', subtitle: 'Повторно добавлять уже сохраненные ключи не нужно', icon: 'medium/key' }),
-          h(MigrationFeature, { title: 'Работайте как обычно', subtitle: 'До конца подписки все инструменты Селлера доступны', icon: 'medium/check' }))),
-
-      h('h2', { className: 'tui-heading-4', style: { textAlign: 'center', margin: '8px 0 0' } }, 'Подробнее о новой подписке'),
+        h('h1', { className: 'tui-heading-4', style: { margin: '32px auto 8px', maxWidth: 560 } }, title),
+        h('p', { className: legacy ? 'tui-ui-m' : 'tui-body-m', style: { margin: '0 auto', maxWidth: 560 } }, subtitle)),
 
       h(T.CardLarge, { appearance: 'elevated', hover: '' },
-        h(T.Cell, { title: '14 дней бесплатно и 50% скидку на первый месяц для новой подписки', avatar: h(T.Avatar, { icon: 'medium/percent', shape: 'square', background: 'tui-status-positive-pale', color: 'tui-status-positive' }) })),
+        h(T.Cell, { title: legacy ? '14 дней бесплатно и 50% скидку на первый месяц для новой подписки' : '14 дней бесплатно и 50% скидка на первый месяц',
+          avatar: h(T.Avatar, { icon: 'medium/percent', shape: 'square', background: 'tui-status-positive-pale', color: 'tui-status-positive' }) })),
 
       h(T.CardLarge, { appearance: 'elevated', hover: '', title: 'Понимаем проблемы селлеров', subtitle: 'И уже более 6 лет помогаем решать их' },
         h(T.Cell, { title: 'Продажи и конверсии падают', avatar: h(T.Avatar, { icon: 'medium/chart-bar-decrease', shape: 'square', tone: 'neutral' }) }),
@@ -119,7 +115,7 @@ export function Landing({ onOpenTool, onConnect }) {
       h(T.CardLarge, { appearance: 'elevated', hover: '',
         title: h(React.Fragment, null, h('span', { className: 'tui-caps-s-bold', style: { display: 'block', color: 'var(--tui-text-secondary)', marginBottom: 4 } }, 'О партнере'), 'MPSTATS'),
         subtitle: 'Бизнес-экосистема для селлеров на маркетплейсах',
-        accessory: h(T.Avatar, { size: 'small', icon: partnerIcon, background: '#62d13d' }) },
+        accessory: h(T.Avatar, { size: 'small', shape: legacy ? 'ellipse' : 'square', icon: partnerIcon, background: '#62d13d' }) },
         h('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
           h('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } },
             h(Stat, { title: '500 000 селлеров', subtitle: 'уже прошли регистрацию' }),
@@ -128,5 +124,8 @@ export function Landing({ onOpenTool, onConnect }) {
             h(Stat, { title: '95%', subtitle: 'точность данных' })),
           h(T.NotificationBanner, { appearance: 'info', size: 'l', icon: 'medium/bonus-check', iconColor: 'var(--tui-status-info)', onClose: false, text: 'Сертифицированный партнер Wildberries' }))),
 
-      h('p', { className: 'tui-body-s', style: { margin: 0, color: 'var(--tui-text-secondary)' } }, 'С 1 февраля вы также сможете продолжить с бесплатным доступом. Без вашего согласия платный тариф не подключится')));
+      /* Floating-container: кнопки парят над контентом без подложки */
+      h('div', { style: { position: 'sticky', bottom: 24, display: 'flex', flexDirection: 'column', gap: 8 } },
+        h(T.Button, { size: 'l', block: true, onClick: onConnect }, legacy ? 'К условиям' : 'К подключению'),
+        legacy && h(T.Button, { size: 'l', appearance: 'flat', block: true }, 'Позвоните мне'))));
 }

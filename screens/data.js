@@ -103,8 +103,8 @@ export const TOOLS = {
 export const TOOL_GROUPS = [
   { title: 'Внутренняя аналитика', grid: 'fin', items: ['fin', 'matrix', 'logistics'] },
   { title: 'Внешняя аналитика', grid: 'wide', items: ['competitors', 'sku360', 'ads', 'reviews', 'trends'] },
-  { title: 'Продвижение', grid: 'pair', items: ['bidder', 'price', 'replies', 'seo'] },
-  { title: 'Карточки и контент', grid: 'content', items: ['aiContent', 'cardEditor', 'externalAds'] }
+  { title: 'Реклама', grid: 'pair', items: ['bidder', 'price', 'replies', 'seo'] },
+  { title: 'Контент', grid: 'content', items: ['aiContent', 'cardEditor', 'externalAds'] }
 ];
 
 /* Контекстные входы на лендинг: с какого виджета главной пришёл пользователь */
@@ -155,4 +155,12 @@ export const PRODUCTS_WORST_REV = [
   { img: prod6, title: SHORT, sku: SKU, sum: '12\u00a0400\u00a0₽' },
   { img: prod5, title: LONG_A, sku: SKU, sum: '0\u00a0₽' },
   { img: prod4, title: LONG_A, sku: SKU, sum: '−5\u00a0200\u00a0₽' }
+];
+
+/* Блок «Автоматизация»: контент каждого чипа. Доля полосы — из макета (ширина сегмента / 480). */
+export const AUTOMATION = [
+  { tab: 'Аудит карточки', ai: { time: '3 минуты', share: 0.25 }, other: { label: 'Вручную', time: '4 – 6 часов', share: 1 } },
+  { tab: 'Поиск ниши', ai: { time: '15 минут', share: 1 / 6 }, other: { label: 'Вручную', time: '3 – 5 дней', share: 1 } },
+  { tab: 'Ответы на отзывы', ai: { time: 'Круглосуточно', share: 1 }, other: { label: 'Вручную', time: '2 – 3 часа в день', share: 0.25 } },
+  { tab: 'Создание фото', ai: { time: 'За 10 минут', share: 0.25 }, other: { label: 'С дизайнером', time: '3 – 7 дней', share: 1 } }
 ];
