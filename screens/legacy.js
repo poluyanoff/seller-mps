@@ -80,7 +80,7 @@ export function LegacySeller({ onDetails, onScheduled, scheduled }) {
         scheduled
           /* После оформления перехода: серая нотификация (макет 8618:225638), без «Скрыть». Размер L, как у синей, чтобы шрифт и высота совпадали */
           ? h(T.NotificationBanner, { appearance: 'neutral', size: 'l', horizontal: true, onClose: false,
-            text: '1 февраля подключим Базовый тариф MPSTATS\u00a0×\u00a0Т-Бизнес', actions: h(T.Button, { size: 'm', appearance: 'secondary', onClick: onScheduled }, 'Условия перехода') })
+            text: '1 февраля подключим Базовый тариф MPSTATS\u00a0×\u00a0Т-Бизнес', action: 'Условия перехода', onAction: onScheduled })
           /* Горизонтальная нотификация в одну строку (макет 8618:224671) */
           : h(T.NotificationBanner, { appearance: 'info', size: 'l', horizontal: true, onClose: false,
             text: 'С 1 февраля сервис изменится и станет MPSTATS\u00a0×\u00a0Т-Бизнес. Рассказываем, что изменится для вас',
