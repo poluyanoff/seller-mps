@@ -128,5 +128,5 @@ export function Landing({ variant = 'new', ctx, onOpenTool, onConnect }) {
          Вылезаем за колонку на 16 с каждой стороны, чтобы кнопки остались на ширине контента */
       h(T.FloatingContainer, { fade: true, background: 'base', position: 'sticky', className: 'proto-fc',
         primaryAction: h(T.Button, { size: 'l', block: true, appearance: 'primary', onClick: onConnect }, legacy ? 'К условиям' : 'К подключению'),
-        secondaryAction: legacy ? h(T.Button, { size: 'l', block: true, appearance: 'flat' }, 'Позвоните мне') : undefined })));
+        secondaryAction: legacy ? h(T.Button, { size: 'l', block: true, appearance: 'secondary' }, 'Позвоните мне') : undefined })));
 }

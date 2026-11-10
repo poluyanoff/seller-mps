@@ -190,7 +190,6 @@
   flex-direction: row;
   padding-left: calc(50vw - 264px);
   padding-right: calc(50vw - 264px);
-  background: linear-gradient(to bottom, transparent 0, transparent 50%, var(--fc-bg) 100%);
 }
 .proto-funnel .proto-fc .tui-fc__item {
   flex: 1 1 0;
