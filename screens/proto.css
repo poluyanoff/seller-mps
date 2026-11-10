@@ -192,7 +192,7 @@
   padding-right: calc(50vw - 264px);
 }
 .proto-funnel .proto-fc .tui-fc__item {
-  flex: 1 1 0;
+  flex: none;
   min-width: 0;
 }
 
