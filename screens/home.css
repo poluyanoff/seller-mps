@@ -131,19 +131,69 @@
   }
 }
 
-/* Фейд-призыв после «Рейтинга товаров» (макет 8641:375711): градиент с лёгким размытием, 756 × 250, шире колонки на 42 */
+/* Призыв после «Рейтинга товаров»: низ карточки размыт и уходит в фейд (радиус как у карточки) */
+.proto-teaser {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 360px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  border-radius: 0 0 24px 24px;
+  overflow: hidden;
+  pointer-events: none;
+}
 .proto-teaser__fade {
   position: absolute;
-  left: -42px;
-  top: 99px;
-  width: 756px;
-  height: 250px;
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.64) 47.115%, #fff 100%);
-  -webkit-backdrop-filter: blur(8.45px);
-  backdrop-filter: blur(8.45px);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 45%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 45%);
-  pointer-events: none;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.64) 47%, #fff 100%);
+}
+/* Ступенчатый блюр: пять слоёв с нарастающим размытием, каждый виден в своей полосе и плавно
+   входит и выходит по маске — так нет резкой границы начала блюра */
+.proto-teaser__blur {
+  position: absolute;
+  inset: 0;
+}
+.proto-teaser__blur--1 {
+  -webkit-backdrop-filter: blur(1px);
+  backdrop-filter: blur(1px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 25%, #000 45%, transparent 60%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 25%, #000 45%, transparent 60%);
+}
+.proto-teaser__blur--2 {
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 15%, #000 40%, #000 55%, transparent 70%);
+  mask-image: linear-gradient(to bottom, transparent 15%, #000 40%, #000 55%, transparent 70%);
+}
+.proto-teaser__blur--3 {
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 30%, #000 50%, #000 65%, transparent 80%);
+  mask-image: linear-gradient(to bottom, transparent 30%, #000 50%, #000 65%, transparent 80%);
+}
+.proto-teaser__blur--4 {
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 45%, #000 65%, #000 80%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 45%, #000 65%, #000 80%, transparent 100%);
+}
+.proto-teaser__blur--5 {
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 60%, #000 85%);
+  mask-image: linear-gradient(to bottom, transparent 60%, #000 85%);
+}
+.proto-teaser__content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px 64px;
+  pointer-events: auto;
 }
 
 /* Тултип у бейджа: хвост под бейджем справа, отступ 8 до бейджа */

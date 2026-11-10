@@ -237,41 +237,20 @@ function TBankMark() {
     h('path', { d: 'M7.5 12.04V9H16.5V12.04C16.07 11.57 15.29 11.25 14.41 11.25H13.45V14.79C13.45 15.73 13.71 16.55 14.1 17H9.9C10.29 16.55 10.55 15.72 10.55 14.78V11.25H9.59C8.7 11.25 7.93 11.57 7.5 12.04Z', fill: 'var(--tui-text-primary-on-accent-1)' }));
 }
 
-/* Плитка «Пульса бизнеса» — заглушка-контент под фейдом: caption, значение, бейдж */
-function PulseTile({ caption, value, delta, tone }) {
-  return h('div', { style: { flex: 1, minWidth: 0, boxSizing: 'border-box', background: 'var(--tui-background-neutral-1)', borderRadius: 12, padding: '10px 12px 12px', display: 'flex', flexDirection: 'column', gap: 12 } },
-    h('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' } },
-      h('div', null,
-        h('div', { className: 'tui-ui-s', style: { color: 'var(--tui-text-tertiary)' } }, caption),
-        h('div', { className: 'tui-heading-6' }, value)),
-      h(Hint, { label: caption })),
-    h('div', { style: { display: 'flex' } }, h(Delta, { text: delta, tone })));
-}
-
-/* Призыв попробовать подписку: размытая карточка уходит в фейд, поверх — логотипы, заголовок, подзаголовок и кнопка */
-function Teaser({ onMore }) {
-  return h('div', { style: { position: 'relative', height: 413, marginTop: 0 } },
-    h(T.CardLarge, { appearance: 'elevated', hover: '', platform: 'desktop', title: 'Пульс бизнеса', subtitle: 'За 21–24 октября', 'aria-hidden': true, style: { pointerEvents: 'none' } },
-      h('div', { style: { display: 'flex', flexDirection: 'column', gap: 12 } },
-        h('div', { style: { display: 'flex', gap: 12 } },
-          h(PulseTile, { caption: 'Заказы', value: nb('1 335 481 ₽'), delta: nb('+200 000₽ · 15%') }),
-          h(PulseTile, { caption: 'Продажи', value: nb('30 481 ₽'), delta: nb('+4 573₽ · 15%') }),
-          h(PulseTile, { caption: 'Чистая прибыль', value: nb('10 481 ₽'), delta: nb('+2 096₽ · 20%') })),
-        h('div', { style: { display: 'flex', gap: 12 } },
-          h(PulseTile, { caption: 'Маржинальность', value: '15%', delta: '+2,3 п.п.' }),
-          h(PulseTile, { caption: 'Реклама', value: nb('61 912 ₽'), delta: nb('+14 850₽ · 24%'), tone: 'bad' }),
-          h(PulseTile, { caption: 'ДРР', value: '20,1%', delta: '+2,3 п.п.', tone: 'bad' })))),
+/* Призыв попробовать подписку: низ карточки «Рейтинг товаров» размывается и уходит в фейд,
+   поверх — знак Т-Банка × MPSTATS, заголовок, подзаголовок и кнопка */
+function TeaserOverlay({ onMore }) {
+  return h('div', { className: 'proto-teaser' },
     h('div', { className: 'proto-teaser__fade', 'aria-hidden': true }),
-    h('div', { style: { position: 'absolute', left: 0, right: 0, top: 181, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 } },
+    [1, 2, 3, 4, 5].map(n => h('div', { key: n, className: `proto-teaser__blur proto-teaser__blur--${n}`, 'aria-hidden': true })),
+    h('div', { className: 'proto-teaser__content' },
       h('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
-        h('div', { style: { display: 'flex', alignItems: 'center', gap: 4 } },
-          h(MpsLogo),
-          h(T.Icon, { name: 'medium-pragmatic/cross', size: 20, color: 'var(--tui-text-tertiary)' })),
-        h(TBankMark)),
-      h('h2', { className: 'tui-heading-4', style: { margin: 0, textAlign: 'center', color: 'var(--tui-text-primary)' } }, 'Еще 200+ сценариев для роста бизнеса на маркетплейсах'),
-      h('p', { className: 'tui-body-m', style: { margin: 0, textAlign: 'center', color: 'var(--tui-text-primary)' } }, 'С подпиской MPSTATS\u00a0×\u00a0Т-Бизнес')),
-    h('div', { style: { position: 'absolute', left: 0, right: 0, top: 357, display: 'flex', justifyContent: 'center' } },
-      h(T.Button, { appearance: 'secondary', size: 'l', onClick: onMore }, ign('Подробнее'))));
+        h(TBankMark),
+        h(T.Icon, { name: 'medium-pragmatic/cross', size: 20, color: 'var(--tui-text-primary)' }),
+        h(MpsLogo)),
+      h('h2', { className: 'tui-heading-4', style: { margin: 0, textAlign: 'center', color: 'var(--tui-text-primary)' } }, 'Еще 200+ сценариев для роста бизнеса на\u00a0маркетплейсах'),
+      h('p', { className: 'tui-body-m', style: { margin: 0, textAlign: 'center', color: 'var(--tui-text-primary)' } }, 'С подпиской MPSTATS\u00a0×\u00a0Т-Бизнес'),
+      h(T.Button, { size: 'l', onClick: onMore }, ign('Подробнее'))));
 }
 
 /* Бейдж «mpstats подключен» с тултипом (макет 8641:378518): после закрытия итогового экрана,
@@ -345,15 +324,13 @@ export function Home({ connected, open, toast, tipOpen, onTipClose, onAllTools }
     clickable('abc', card({ key: 'abc', title: 'ABC\u2011анализ', ...nav, ctx: 'abc' },
       h(React.Fragment, null, h(Seg, { items: ['По прибыли', 'По выручке'], value: abcTab, onChange: setAbcTab }), h(AbcBody, { tab: abcTab })))),
 
-    clickable('rating', card({ key: 'rate', title: 'Рейтинг товаров', ...nav, ctx: 'rating' },
+    h('div', { key: 'rating-wrap', style: { position: 'relative' } }, clickable('rating', card({ key: 'rate', title: 'Рейтинг товаров', ...nav, ctx: 'rating' },
       h('div', { style: { display: 'flex', flexDirection: 'column', gap: 20 } },
         h(Seg, { items: ['По прибыли', 'По выручке'], value: ratingTab, onChange: setRatingTab }),
         h('div', null, h('div', { className: 'tui-ui-l-bold', style: { marginBottom: 8 } }, 'Продаются лучше'), (ratingTab === 0 ? PRODUCTS_BEST : PRODUCTS_BEST_REV).map((p, i) => h(ProductRow, { key: ratingTab + '-' + i, p }))),
         h('div', null, h('div', { className: 'tui-ui-l-bold', style: { marginBottom: 8 } }, 'Продаются хуже'), (ratingTab === 0 ? PRODUCTS_WORST : PRODUCTS_WORST_REV).map((p, i) => h(ProductRow, { key: ratingTab + '-' + i, p })))))),
+      !connected && h(TeaserOverlay, { onMore: go('summary') })),
 
-    /* Фейд-призыв: после «Рейтинга товаров» только в неподключённом состоянии (макет 8641:375709).
-       Подключено — страница заканчивается рейтингом. */
-    !connected && h(Teaser, { key: 'teaser', onMore: go('summary') })
   ].filter(Boolean);
 
   const aside = [
