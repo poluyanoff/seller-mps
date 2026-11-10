@@ -124,8 +124,9 @@ export function Landing({ variant = 'new', ctx, onOpenTool, onConnect }) {
             h(Stat, { title: '95%', subtitle: 'точность данных' })),
           h(T.NotificationBanner, { appearance: 'info', size: 'l', icon: 'medium/bonus-check', iconColor: 'var(--tui-status-info)', onClose: false, text: 'Сертифицированный партнер Wildberries' }))),
 
-      /* Floating-container: кнопки парят над контентом без подложки */
-      h('div', { style: { position: 'sticky', bottom: 24, display: 'flex', flexDirection: 'column', gap: 8 } },
-        h(T.Button, { size: 'l', block: true, onClick: onConnect }, legacy ? 'К условиям' : 'К подключению'),
-        legacy && h(T.Button, { size: 'l', appearance: 'flat', block: true }, 'Позвоните мне'))));
+      /* Floating-container с подложкой-градиентом (fade): контент плавно уходит в фон под кнопками.
+         Вылезаем за колонку на 16 с каждой стороны, чтобы кнопки остались на ширине контента */
+      h(T.FloatingContainer, { fade: true, background: 'base', position: 'sticky', className: 'proto-fc',
+        primaryAction: h(T.Button, { size: 'l', block: true, appearance: 'primary', onClick: onConnect }, legacy ? 'К условиям' : 'К подключению'),
+        secondaryAction: legacy ? h(T.Button, { size: 'l', block: true, appearance: 'flat' }, 'Позвоните мне') : undefined })));
 }

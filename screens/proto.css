@@ -56,7 +56,7 @@
 .legacy-chart__bought {
   position: absolute;
   bottom: 0;
-  width: 6px;
+  width: 8px;
   border-radius: 4px 4px 0 0;
 }
 .legacy-chart__ordered { background: #c7c9cc; }
@@ -65,8 +65,6 @@
   position: absolute;
   top: calc(100% + 8px);
   color: var(--tui-text-secondary);
-  font-size: 11px;
-  line-height: 16px;
 }
 .legacy-chart__axis {
   position: absolute;
@@ -77,8 +75,6 @@
   flex-direction: column;
   justify-content: space-between;
   color: var(--tui-text-secondary);
-  font-size: 11px;
-  line-height: 16px;
   white-space: nowrap;
 }
 
@@ -170,4 +166,51 @@
   .proto-funnel .tui-dlg__col--in {
     animation: none;
   }
+}
+
+/* Заглушки старой главной: без пульсации скелетона ДС — это не загрузка, а «дальше не рисуем» */
+.legacy-skeleton.legacy-skeleton {
+  animation: none;
+}
+
+/* Плавающий футер лендинга: подложка на всю ширину экрана, фейд прозрачен до середины высоты,
+   кнопки в ряд на ширине колонки (528) */
+.proto-funnel .tui-dlg__steps {
+  overflow-x: visible;
+  overflow-y: clip;
+}
+.proto-funnel {
+  overflow-x: hidden;
+}
+.proto-funnel .proto-fc {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: 0;
+  box-sizing: border-box;
+  flex-direction: row;
+  padding-left: calc(50vw - 264px);
+  padding-right: calc(50vw - 264px);
+  background: linear-gradient(to bottom, transparent 0, transparent 50%, var(--fc-bg) 100%);
+}
+.proto-funnel .proto-fc .tui-fc__item {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Подложка футера лендинга без внешней тени */
+.proto-funnel .proto-fc {
+  box-shadow: none;
+  filter: none;
+}
+
+/* Лигал сбоку от кнопки (макет): футер не переносится, лигал занимает остаток строки */
+.proto-funnel .tui-dlg__footer {
+  flex-wrap: nowrap;
+  align-items: center;
+}
+.proto-funnel .tui-dlg__legal--right {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: none;
+  margin-left: 0;
 }

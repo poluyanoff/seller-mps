@@ -2,19 +2,28 @@ import { React, T } from './runtime.js';
 
 const h = React.createElement;
 
-/* Лигал оформления: серый, с подчёркиванием — это делает сам Dialog (prop legal) */
-export const CHECKOUT_LEGAL = h(React.Fragment, null,
-  'Нажимая «Подключить», вы принимаете условия ',
+/* Лигал оформления: серый, с подчёркиванием — это делает сам Dialog (prop legal).
+   Название кнопки в кавычках зависит от варианта: «Подключить» у нового Селлера, «Запланировать переход» у старого. */
+export const checkoutLegal = button => h(React.Fragment, null,
+  `Нажимая «${button}», вы принимаете условия `,
   h(T.Link, { href: 'https://www.tbank.ru/business/', target: '_blank', rel: 'noopener noreferrer' }, 'оферты'));
 
 /* Оформление пробного периода: три шага связанными ячейками.
-   Кнопка «Подключить» и лигал справа от неё задаются в Dialog (см. main.js). */
-export function Checkout() {
+   Старый Селлер (макет 8618:226607): другие иконки, подпись у второго шага — даты, плюс строка про отзыв согласия.
+   Кнопка и лигал справа от неё задаются в Dialog (см. main.js). */
+export function Checkout({ variant = 'new' }) {
+  const legacy = variant === 'legacy';
   return h('div', { style: { width: '100%' } },
     h('h1', { className: 'tui-heading-3', style: { margin: '0 0 20px' } }, 'Попробуйте MPSTATS бесплатно'),
-    h(T.Cell, { connected: true, connectTop: false, inset: 'none', size: 'l', title: 'Сейчас ничего не платите', avatar: 'medium/coin', avatarTone: 'accent-2' }),
-    h(T.Cell, { connected: true, inset: 'none', size: 'l', title: '14 дней бесплатного использования', description: 'Все инструменты MPSTATS доступны для вашего магазина', avatar: 'medium/rocket', avatarTone: 'neutral' }),
-    h(T.Cell, { connected: true, connectBottom: false, inset: 'none', size: 'l', title: '15 февраля спишем 6\u00a0495\u00a0₽', description: 'Напомним о списании за день', avatar: 'medium/card-frontside', avatarTone: 'neutral' }));
+    h(T.Cell, { connected: true, connectTop: false, inset: 'none', size: 'l', title: 'Сейчас ничего не платите',
+      avatar: legacy ? 'medium/bonus-zero' : 'medium/coin', avatarTone: 'accent-2' }),
+    h(T.Cell, { connected: true, inset: 'none', size: 'l', title: '14 дней бесплатного использования',
+      description: legacy ? 'С 1 по 14 февраля включительно' : 'Все инструменты MPSTATS доступны для вашего магазина',
+      avatar: legacy ? 'medium/hourglass' : 'medium/rocket', avatarTone: 'neutral' }),
+    h(T.Cell, { connected: true, connectBottom: false, inset: 'none', size: 'l', title: '15 февраля спишем 6\u00a0495\u00a0₽',
+      description: 'Напомним о списании за день', avatar: 'medium/card-frontside', avatarTone: 'neutral' }),
+    legacy && h('p', { className: 'tui-body-m', style: { margin: '4px 0 0', color: 'var(--tui-text-secondary)' } },
+      'Согласие можно будет отозвать в любой момент через чат'));
 }
 
 /* Результат. Новый Селлер: подписка подключена, «Перейти в MPSTATS» открывает реальную ссылку.

@@ -15,8 +15,8 @@ function SummaryChart() {
       h('div', { className: 'legacy-chart__bars' }, values.map(([ordered, bought], index) => h('div', { className: 'legacy-chart__column', key: index },
         h('span', { className: 'legacy-chart__ordered', style: { height: ordered + '%' } }),
         h('span', { className: 'legacy-chart__bought', style: { height: bought + '%' } }),
-        h('span', { className: 'legacy-chart__day' }, days[index])))),
-      h('div', { className: 'legacy-chart__axis', 'aria-hidden': true }, ['100 тыс ₽', '60 тыс ₽', '20 тыс ₽', '0 ₽'].map(label => h('span', { key: label }, label)))));
+        h('span', { className: 'legacy-chart__day tui-body-xs' }, days[index])))),
+      h('div', { className: 'legacy-chart__axis tui-body-xs', 'aria-hidden': true }, ['100 тыс ₽', '60 тыс ₽', '20 тыс ₽', '0 ₽'].map(label => h('span', { key: label }, label)))));
 }
 
 function SmallSummary({ title, value }) {
@@ -26,13 +26,38 @@ function SmallSummary({ title, value }) {
     h('div', { className: 'tui-body-s', style: { color: 'var(--tui-text-secondary)', marginTop: 8 } }, title));
 }
 
+/* Заглушки под готовыми блоками: страница дальше не рисуется, и это видно.
+   Размеры и сетка — из макета старой главной (8618:224671). Пластины статичные, без пульсации:
+   пульсация читалась бы как «ещё грузится». Скелетон ДС заливает карточку целиком (skeleton у CardLarge). */
+function Plate({ w, h: height, style }) {
+  return h(T.CardLarge, { skeleton: true, className: 'legacy-skeleton', 'aria-hidden': true, style: Object.assign({ width: w, height, minHeight: 0, flex: 'none' }, style) });
+}
+
+function Heading({ w }) {
+  return h(Plate, { w, h: 32, style: { borderRadius: 8 } });
+}
+
+function LegacyPlaceholders() {
+  return h('div', { 'aria-hidden': true, style: { display: 'flex', flexDirection: 'column', gap: 32, marginTop: 52 } },
+    h('div', { style: { display: 'flex', flexDirection: 'column', gap: 32 } },
+      h(Heading, { w: 233 }),
+      h('div', { style: { display: 'flex', gap: 48 } }, [0, 1, 2, 3].map(i => h(Plate, { key: i, w: 240, h: 273 })))),
+    h('div', { style: { display: 'flex', flexDirection: 'column', gap: 32 } },
+      h(Heading, { w: 214 }),
+      h(Plate, { w: '100%', h: 289 }),
+      h(Plate, { w: '100%', h: 44, style: { borderRadius: 12 } })),
+    h('div', { style: { display: 'flex', gap: 48, alignItems: 'flex-start' } },
+      h('div', { style: { display: 'flex', flexDirection: 'column', gap: 40, flex: 1 } }, h(Plate, { w: '100%', h: 344 }), h(Plate, { w: '100%', h: 236 })),
+      h('div', { style: { display: 'flex', flexDirection: 'column', gap: 40, flex: 1 } }, h(Plate, { w: '100%', h: 96 }), h(Plate, { w: '100%', h: 432 }))));
+}
+
 function LegacyNav() {
   return h('div', { style: { background: 'var(--tui-background-neutral-1-on-elevation-1)' } },
     h('div', { style: { width: 1104, maxWidth: 'calc(100% - 64px)', margin: '0 auto', height: 64, display: 'flex', alignItems: 'center', gap: 24 } },
       sections.map((label, index) => h('span', { key: label, className: 'tui-body-s', style: { color: index === 0 ? 'var(--tui-text-primary)' : 'var(--tui-text-secondary)', borderBottom: index === 0 ? '2px solid var(--tui-text-primary)' : undefined, height: '100%', display: 'inline-flex', alignItems: 'center' } }, label))));
 }
 
-export function LegacySeller({ onDetails, scheduled }) {
+export function LegacySeller({ onDetails, onScheduled, scheduled }) {
   const filters = h('div', { style: { display: 'flex', alignItems: 'center', gap: 8, margin: '24px 0 20px' } },
     h(T.Chip, { size: 'm', shape: 'rounded', dropdown: true, style: { background: 'var(--tui-background-base)', border: '1px solid var(--tui-border-normal)', borderRadius: 8 } }, 'Эта неделя'),
     h(T.Chip, { size: 'm', shape: 'rounded', dropdown: true, style: { background: 'var(--tui-background-base)', border: '1px solid var(--tui-border-normal)', borderRadius: 8 } }, 'Wildberries'),
@@ -55,7 +80,7 @@ export function LegacySeller({ onDetails, scheduled }) {
         scheduled
           /* После оформления перехода: серая нотификация (макет 8618:225638), без «Скрыть». Размер L, как у синей, чтобы шрифт и высота совпадали */
           ? h(T.NotificationBanner, { appearance: 'neutral', size: 'l', horizontal: true, onClose: false,
-            text: '1 февраля подключим Базовый тариф MPSTATS\u00a0×\u00a0Т-Бизнес', action: 'Условия перехода', onAction: onDetails })
+            text: '1 февраля подключим Базовый тариф MPSTATS\u00a0×\u00a0Т-Бизнес', action: 'Условия перехода', onAction: onScheduled })
           /* Горизонтальная нотификация в одну строку (макет 8618:224671) */
           : h(T.NotificationBanner, { appearance: 'info', size: 'l', horizontal: true, onClose: false,
             text: 'С 1 февраля сервис изменится и станет MPSTATS\u00a0×\u00a0Т-Бизнес. Рассказываем, что изменится для вас',
@@ -66,5 +91,5 @@ export function LegacySeller({ onDetails, scheduled }) {
 
   return h(React.Fragment, null,
     header,
-    h('main', { style: { width: 1104, maxWidth: 'calc(100% - 64px)', margin: '0 auto', paddingBottom: 48 } }, main));
+    h('main', { style: { width: 1104, maxWidth: 'calc(100% - 64px)', margin: '0 auto', paddingBottom: 48 } }, main, h(LegacyPlaceholders)));
 }

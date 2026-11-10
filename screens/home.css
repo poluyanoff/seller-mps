@@ -91,3 +91,91 @@
     transition: none;
   }
 }
+
+/* Пункты блока «Инструменты» (макеты 6974:32375 и 7409:48338): при наведении серая плашка шире контента на 16 с каждой стороны,
+   радиус 12. Справа замок (не подключено) или стрелка ↗ (подключено), цвет text-secondary. */
+.proto-tool {
+  position: relative;
+  cursor: pointer;
+}
+.proto-tool::before {
+  content: '';
+  position: absolute;
+  inset: 0 -16px;
+  border-radius: 12px;
+  background: var(--tui-background-neutral-1);
+  opacity: 0;
+  transition: opacity var(--duration-fast, 150ms) var(--easing-productive-standard, ease);
+  pointer-events: none;
+}
+.proto-tool > * {
+  position: relative;
+}
+.proto-tool__end {
+  display: inline-flex;
+  align-items: center;
+  color: var(--tui-text-secondary);
+  opacity: 0;
+  transition: opacity var(--duration-fast, 150ms) var(--easing-productive-standard, ease);
+}
+/* Своя плашка шире контента — штатный фон ячейки отключаем, чтобы ховер был один */
+.proto-tool .tui-cell {
+  background: transparent !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  .proto-tool:hover::before {
+    opacity: 1;
+  }
+  .proto-tool:hover .proto-tool__end {
+    opacity: 1;
+  }
+}
+
+/* Фейд-призыв после «Рейтинга товаров» (макет 8641:375711): градиент с лёгким размытием, 756 × 250, шире колонки на 42 */
+.proto-teaser__fade {
+  position: absolute;
+  left: -42px;
+  top: 99px;
+  width: 756px;
+  height: 250px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.64) 47.115%, #fff 100%);
+  -webkit-backdrop-filter: blur(8.45px);
+  backdrop-filter: blur(8.45px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 45%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 45%);
+  pointer-events: none;
+}
+
+/* Тултип у бейджа: хвост под бейджем справа, отступ 8 до бейджа */
+.proto-tip {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 8px);
+  right: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proto-tool::before {
+    transition: none;
+  }
+}
+
+/* Экран «Все инструменты»: колонка шире стандартной воронки (720), стрелка ↗ видна только на наведённой строке */
+.proto-funnel--alltools .tui-dlg__bar-in,
+.proto-funnel--alltools .tui-dlg__col {
+  width: 720px;
+}
+.proto-alltools {
+  display: flex;
+  gap: 32px;
+  align-items: flex-start;
+}
+.proto-tool__end--hover {
+  opacity: 0;
+  transition: opacity var(--duration-fast, 150ms) var(--easing-productive-standard, ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .proto-tool--all:hover .proto-tool__end--hover {
+    opacity: 1;
+  }
+}

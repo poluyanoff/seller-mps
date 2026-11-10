@@ -2,9 +2,11 @@ import { React, T } from './runtime.js';
 import './home.css';
 import { CHART, DAYS, PRODUCTS_BEST, PRODUCTS_WORST, PRODUCTS_BEST_REV, PRODUCTS_WORST_REV, ABC_REVENUE } from './data.js';
 import promoBg from '../assets/home/promo-bg.png';
-import collage from '../assets/home/collage.png';
 
 const h = React.createElement;
+
+/* Неразрывные пробелы в суммах и датах */
+const nb = t => t.replace(/ /g, '\u00a0');
 
 /* Плитка-метрика (tui-card-medium): значение, подпись, подсказка и изменение */
 const ign = t => h('span', { 'data-tui-copy-ignore': true }, t);
@@ -185,11 +187,28 @@ function AbcBody({ tab }) {
     rows.map((r, i) => h(AbcRow, { key: 'r' + i, color: r.color, label: r.label, pcs: r.pcs, pct: r.pct })));
 }
 
+/* Инструменты MPSTATS (макет 8843:309213): три пункта, цвета аватаров — прозрачные категориальные */
 const tools = [
-  { label: 'Внешняя аналитика', icon: 'medium/chart-grow', c: '--tui-categorical-21', bg: 'rgba(9,174,158,0.1)' },
-  { label: 'Студия AI-контента', icon: 'medium/logo-ai-assistant', c: '--tui-categorical-06', bg: 'rgba(208,143,255,0.1)' },
-  { label: 'Внешняя реклама', icon: 'medium/target-arrow', c: '--tui-categorical-09', bg: 'rgba(245,146,0,0.1)' },
-  { label: 'Управление ценой', icon: 'medium/two-coins', c: '--tui-categorical-08', bg: 'rgba(102,163,255,0.1)' }
+  { label: 'Внутренняя аналитика', icon: 'medium/chart', color: '--tui-categorical-21', bg: 'rgba(9,174,158,0.1)' },
+  { label: 'Аудитор SKU 360', icon: 'medium/note-check', color: '--tui-categorical-13', bg: 'rgba(255,165,31,0.1)' },
+  { label: 'Управление ценой', icon: 'medium/two-coins', color: '--tui-categorical-06', bg: 'rgba(208,143,255,0.1)' }
+];
+
+/* Полный список для экрана «Все инструменты» (макет 8402:22520) */
+export const ALL_TOOLS = [
+  { group: 'Управление и рост', color: '--tui-categorical-21', bg: 'rgba(9,174,158,0.1)', items: [
+    ['Внутренняя аналитика', 'Все данные по продажам', 'medium/chart'],
+    ['Юнит-калькулятор', 'Расчет потенциальной прибыли', 'medium/calculator']] },
+  { group: 'Аналитика и стратегия', color: '--tui-categorical-13', bg: 'rgba(255,165,31,0.1)', items: [
+    ['Внешняя аналитика', 'Анализ ниш и конкурентов', 'medium/chart-grow'],
+    ['Аудитор SKU 360', 'Подсказки по улучшению карточки', 'medium/note-check'],
+    ['Плагин для браузера', 'Аналитика на странице маркетплейса', 'medium/puzzle']] },
+  { group: 'Оптимизация и продвижение', color: '--tui-categorical-06', bg: 'rgba(208,143,255,0.1)', items: [
+    ['SEO', 'Анализ запросов и генерация описания', 'medium/magnifier'],
+    ['Внешняя реклама', 'Аналитика каналов продвижения', 'medium/target-arrow'],
+    ['Биддер', 'Автоматическое управление рекламой', 'medium/wallet-arrow-up'],
+    ['Автоответы', 'Нейросеть поможет отвечать на отзывы', 'medium/bubble-talk'],
+    ['Управление ценой', 'Настройка и автоматическое изменение', 'medium/two-coins']] }
 ];
 
 const SMILES = [
@@ -203,14 +222,83 @@ function Smile({ kind }) {
     h('svg', { width: 24, height: 24, viewBox: '0 0 24 24', fill: 'currentColor' }, SMILES[kind].map((d, i) => h('path', { key: i, d }))));
 }
 
+
+/* Знак MPSTATS (зелёный), 32×32: те же контуры, что у аватара партнёра на лендинге */
+function MpsLogo() {
+  return h('svg', { width: 32, height: 32, viewBox: '0 0 24 24', fill: 'none', 'aria-hidden': true, style: { display: 'block' } },
+    h('path', { d: 'M18.6339 14.8764L6.90323 21.4658C6.4242 21.7356 5.84071 21.3778 5.84071 20.8162V7.6428C5.84071 7.08132 6.42411 6.72625 6.90323 6.99321C7.13341 7.12255 7.2779 7.373 7.2779 7.6428V15.2369C7.2779 15.7984 7.86406 16.1562 8.34319 15.8838L15.1626 12.0193C15.3768 11.8981 15.639 11.8981 15.8531 12.0165L18.6312 13.5744C19.1343 13.8607 19.1343 14.5983 18.6338 14.8763L18.6339 14.8764Z', fill: '#62d13d' }),
+    h('path', { d: 'M17.5975 7.5873C18.0634 7.8767 18.0634 8.58351 17.5975 8.87281L14.0299 11.0932L13.9717 11.1294L9.67364 13.8061C9.19995 14.1011 8.60177 13.7421 8.60177 13.1634V3.29684C8.60177 2.71812 9.19995 2.35913 9.67364 2.6541L17.5975 7.5873Z', fill: '#62d13d' }));
+}
+
+/* Знак Т-Банка: жёлтый щит с буквой (пути из ДС), в макете 24×24 */
+function TBankMark() {
+  return h('svg', { width: 24, height: 24, viewBox: '0 0 24 24', 'aria-hidden': true, style: { display: 'block' } },
+    h('path', { d: 'M22.5 3H1.5V13.56C1.5 16.27 2.94 18.77 5.29 20.13L12 24L18.71 20.13C21.06 18.77 22.5 16.27 22.5 13.56V3Z', fill: 'var(--tui-background-accent-1)' }),
+    h('path', { d: 'M7.5 12.04V9H16.5V12.04C16.07 11.57 15.29 11.25 14.41 11.25H13.45V14.79C13.45 15.73 13.71 16.55 14.1 17H9.9C10.29 16.55 10.55 15.72 10.55 14.78V11.25H9.59C8.7 11.25 7.93 11.57 7.5 12.04Z', fill: 'var(--tui-text-primary-on-accent-1)' }));
+}
+
+/* Плитка «Пульса бизнеса» — заглушка-контент под фейдом: caption, значение, бейдж */
+function PulseTile({ caption, value, delta, tone }) {
+  return h('div', { style: { flex: 1, minWidth: 0, boxSizing: 'border-box', background: 'var(--tui-background-neutral-1)', borderRadius: 12, padding: '10px 12px 12px', display: 'flex', flexDirection: 'column', gap: 12 } },
+    h('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' } },
+      h('div', null,
+        h('div', { className: 'tui-ui-s', style: { color: 'var(--tui-text-tertiary)' } }, caption),
+        h('div', { className: 'tui-heading-6' }, value)),
+      h(Hint, { label: caption })),
+    h('div', { style: { display: 'flex' } }, h(Delta, { text: delta, tone })));
+}
+
+/* Призыв попробовать подписку: размытая карточка уходит в фейд, поверх — логотипы, заголовок, подзаголовок и кнопка */
+function Teaser({ onMore }) {
+  return h('div', { style: { position: 'relative', height: 413, marginTop: 0 } },
+    h(T.CardLarge, { appearance: 'elevated', hover: '', platform: 'desktop', title: 'Пульс бизнеса', subtitle: 'За 21–24 октября', 'aria-hidden': true, style: { pointerEvents: 'none' } },
+      h('div', { style: { display: 'flex', flexDirection: 'column', gap: 12 } },
+        h('div', { style: { display: 'flex', gap: 12 } },
+          h(PulseTile, { caption: 'Заказы', value: nb('1 335 481 ₽'), delta: nb('+200 000₽ · 15%') }),
+          h(PulseTile, { caption: 'Продажи', value: nb('30 481 ₽'), delta: nb('+4 573₽ · 15%') }),
+          h(PulseTile, { caption: 'Чистая прибыль', value: nb('10 481 ₽'), delta: nb('+2 096₽ · 20%') })),
+        h('div', { style: { display: 'flex', gap: 12 } },
+          h(PulseTile, { caption: 'Маржинальность', value: '15%', delta: '+2,3 п.п.' }),
+          h(PulseTile, { caption: 'Реклама', value: nb('61 912 ₽'), delta: nb('+14 850₽ · 24%'), tone: 'bad' }),
+          h(PulseTile, { caption: 'ДРР', value: '20,1%', delta: '+2,3 п.п.', tone: 'bad' })))),
+    h('div', { className: 'proto-teaser__fade', 'aria-hidden': true }),
+    h('div', { style: { position: 'absolute', left: 0, right: 0, top: 181, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 } },
+      h('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
+        h('div', { style: { display: 'flex', alignItems: 'center', gap: 4 } },
+          h(MpsLogo),
+          h(T.Icon, { name: 'medium-pragmatic/cross', size: 20, color: 'var(--tui-text-tertiary)' })),
+        h(TBankMark)),
+      h('h2', { className: 'tui-heading-4', style: { margin: 0, textAlign: 'center', color: 'var(--tui-text-primary)' } }, 'Еще 200+ сценариев для роста бизнеса на маркетплейсах'),
+      h('p', { className: 'tui-body-m', style: { margin: 0, textAlign: 'center', color: 'var(--tui-text-primary)' } }, 'С подпиской MPSTATS\u00a0×\u00a0Т-Бизнес')),
+    h('div', { style: { position: 'absolute', left: 0, right: 0, top: 357, display: 'flex', justifyContent: 'center' } },
+      h(T.Button, { appearance: 'secondary', size: 'l', onClick: onMore }, ign('Подробнее'))));
+}
+
+/* Бейдж «mpstats подключен» с тултипом (макет 8641:378518): после закрытия итогового экрана,
+   закрывается кликом вне тултипа и кнопкой «К тарифам» */
+function ConnectedBadge({ tipOpen, onTipClose }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    if (!tipOpen) return undefined;
+    const onDown = e => { if (ref.current && !ref.current.contains(e.target)) onTipClose && onTipClose(); };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, [tipOpen]);
+  return h('div', { ref, style: { position: 'relative', display: 'inline-block' } },
+    h(T.Badge, { appearance: 'positive-pale', size: 'x-large', dot: true }, 'mpstats подключен'),
+    tipOpen && h('div', { className: 'proto-tip', role: 'presentation' },
+      h(T.Tooltip, { position: 'top-right', width: 240, text: nb('15 февраля спишем 6 495 ₽ за месяц'),
+        action: { label: 'К тарифам', onClick: onTipClose } })));
+}
+
 /* Главная Т-Бизнеса. connected — подписка оформлена: меняется бейдж и пропадают промо-блоки.
    open(ctx) — открыть лендинг; ctx подсказывает, с какого виджета пришли. */
-export function Home({ connected, open, toast }) {
+export function Home({ connected, open, toast, tipOpen, onTipClose, onAllTools }) {
+  const openService = () => window.open('https://mpstats.io/login', '_blank', 'noopener,noreferrer');
   const go = ctx => () => open(ctx);
   const [abcTab, setAbcTab] = React.useState(0);
   const [ratingTab, setRatingTab] = React.useState(0);
-  const nb = t => t.replace(/ /g, '\u00a0');
-  const card = (props, ...kids) => h(T.CardLarge, Object.assign({ appearance: 'elevated', hover: '', platform: 'desktop' }, props, props.ctx && !connected ? { onClick: go(props.ctx), className: props.disclosure ? 'proto-widget' : undefined } : null), ...kids);
+  const card = (props, ...kids) => h(T.CardLarge, Object.assign({ appearance: 'elevated', hover: '', platform: 'desktop' }, props, props.ctx ? { onClick: connected ? openService : go(props.ctx), className: props.disclosure ? 'proto-widget' : undefined } : null), ...kids);
   const pad = (n, node) => h('div', { style: { paddingTop: n } }, node);
   /* Виджет-вход: вся карточка — зона клика (палец), заголовок синеет, шеврон уезжает вправо (см. home.css).
      После подключения виджеты перестают быть кликабельными. */
@@ -263,17 +351,20 @@ export function Home({ connected, open, toast }) {
         h('div', null, h('div', { className: 'tui-ui-l-bold', style: { marginBottom: 8 } }, 'Продаются лучше'), (ratingTab === 0 ? PRODUCTS_BEST : PRODUCTS_BEST_REV).map((p, i) => h(ProductRow, { key: ratingTab + '-' + i, p }))),
         h('div', null, h('div', { className: 'tui-ui-l-bold', style: { marginBottom: 8 } }, 'Продаются хуже'), (ratingTab === 0 ? PRODUCTS_WORST : PRODUCTS_WORST_REV).map((p, i) => h(ProductRow, { key: ratingTab + '-' + i, p })))))),
 
-    h('div', { key: 'more', style: { textAlign: 'center', padding: '8px 0 0' } },
-      h('img', { src: collage, alt: '', style: { width: 672, maxWidth: '100%', display: 'block' } }),
-      h('h2', { className: 'tui-heading-4', style: { margin: '32px 0 16px', color: 'var(--tui-text-primary)' } }, connected ? 'Данные MPSTATS подключены' : 'Еще больше данных по магазину'),
-      h('p', { className: 'tui-body-l', style: { margin: '0 0 32px' } }, 'С подпиской MPSTATS\u00a0×\u00a0Т-Бизнес'),
-      !connected && h(T.Button, { appearance: 'secondary', size: 'l', onClick: go('summary') }, ign('Подробнее')))
+    /* Фейд-призыв: после «Рейтинга товаров» только в неподключённом состоянии (макет 8641:375709).
+       Подключено — страница заканчивается рейтингом. */
+    !connected && h(Teaser, { key: 'teaser', onMore: go('summary') })
   ].filter(Boolean);
 
   const aside = [
-    card({ key: 'tools', title: 'Инструменты MPSTATS', footer: connected ? null : h(T.Button, { appearance: 'secondary', size: 'm', onClick: go('tools') }, 'Все инструменты') },
-      tools.map(t => h(T.Cell, { key: t.label, inset: 'none', title: t.label, onClick: connected ? undefined : go('tools'),
-        avatar: h(T.Avatar, { icon: t.icon, size: 'small', shape: 'square', background: t.bg, color: `var(${t.c})` }) }))),
+    /* Инструменты MPSTATS: три пункта и кнопка «Посмотреть все» в обоих состояниях.
+       Не подключено — пункты и кнопка ведут на лендинг, справа замок; подключено — пункты открывают сервис, справа стрелка ↗. */
+    h(T.CardLarge, { key: 'tools', appearance: 'elevated', hover: '', platform: 'desktop', title: 'Инструменты MPSTATS',
+      footer: h(T.Button, { appearance: 'secondary', size: 'm', onClick: connected ? onAllTools : go('tools') }, 'Посмотреть все') },
+      tools.map(t => h('div', { key: t.label, className: 'proto-tool', 'data-connected': connected ? '' : undefined },
+        h(T.Cell, { inset: 'none', title: t.label, onClick: connected ? openService : go('tools'),
+          avatar: h(T.Avatar, { icon: t.icon, size: 'small', shape: 'square', background: t.bg, color: `var(${t.color})` }),
+          accessory: h('span', { className: 'proto-tool__end' }, h(T.Icon, { name: connected ? 'small-pragmatic/arrow-top-right' : 'small-pragmatic/lock', size: 16 })) })))),
     card({ key: 'csat', title: 'Как вам новая главная?', titleClassName: 'tui-heading-6' },
       h('div', { style: { display: 'flex', gap: 16 } }, [0, 1, 2].map(k => h(Smile, { key: k, kind: k }))))
   ];
@@ -292,7 +383,7 @@ export function Home({ connected, open, toast }) {
       title: 'Тестовый магазин',
       header: { titleSuffix: h(T.Icon, { name: 'medium-pragmatic/chevron-down', size: 24 }),
         accessory: connected
-          ? h(T.Badge, { appearance: 'positive-pale', size: 'x-large', dot: true }, 'mpstats подключен')
+          ? h(ConnectedBadge, { tipOpen, onTipClose })
           : h(T.Badge, { appearance: 'neutral-pale', size: 'x-large', dot: true }, 'mpstats не подключен') }
     }),
     h(StickyFilters, null, filters));
