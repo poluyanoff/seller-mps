@@ -242,7 +242,7 @@ function TBankMark() {
 function TeaserOverlay({ onMore }) {
   return h('div', { className: 'proto-teaser' },
     h('div', { className: 'proto-teaser__fade', 'aria-hidden': true }),
-    [1, 2, 3, 4, 5].map(n => h('div', { key: n, className: `proto-teaser__blur proto-teaser__blur--${n}`, 'aria-hidden': true })),
+    [0, 1, 2, 3, 4, 5, 6, 7].map(n => h('div', { key: n, className: `proto-teaser__blur proto-teaser__blur--${n}`, 'aria-hidden': true })),
     h('div', { className: 'proto-teaser__content' },
       h('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
         h(TBankMark),
